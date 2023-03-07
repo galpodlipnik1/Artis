@@ -11,3 +11,7 @@ API.interceptors.request.use((req) => {
 });
 
 export const signIn = () => API.get('/user/signin');
+export const signUp = () => API.get('/user/signup');
+
+export const dbStatus = () => API.get('/status/db');
+export const serverStatus = () => API.get('/status/server');

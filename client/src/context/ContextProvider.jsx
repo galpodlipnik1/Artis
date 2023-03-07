@@ -1,17 +1,13 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState } from 'react';
 
 const StateContext = createContext();
 
-export const StateProvider = ({ children }) => {
+export const ContextProvider = ({ children }) => {
   const [state, setState] = useState({
     temp: true
   });
 
-  return (
-    <StateContext.Provider value={[state, setState]}>
-      {children}
-    </StateContext.Provider>
-  );
-}
+  return <StateContext.Provider value={[state, setState]}>{children}</StateContext.Provider>;
+};
 
-export const useStateValue = () => useContext(StateContext);
+export const useStateContext = () => useContext(StateContext);
