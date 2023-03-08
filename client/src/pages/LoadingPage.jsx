@@ -60,7 +60,7 @@ const LoadingPage = () => {
       loadingPage.classList.remove('loadingImg');
       loadingPage.classList.add('finnishedImg');
       setTimeout(() => {
-        navigate('/saved');
+        navigate('/menu');
       }, 2000);
     }
   }, [loadingFinished]);
@@ -69,17 +69,17 @@ const LoadingPage = () => {
     if (progress <= 33) {
       setStatus({
         status: `Checking server status... ${serverStatusRes?.status}`,
-        color: `${serverStatusRes?.status === 'OK' ? 'green' : 'red'}`
+        color: `${serverStatusRes?.status === 'OK' ? 'white' : 'red'}`
       });
     } else if (progress <= 66) {
       setStatus({
         status: `Checking database status... ${dbStatusRes?.status}`,
-        color: `${dbStatusRes?.status === 'OK' ? 'green' : 'red'}`
+        color: `${dbStatusRes?.status === 'OK' ? 'white' : 'red'}`
       });
     } else {
       setStatus({
         status: `Checking latency... ${latency}ms`,
-        color: `${latency < 500 ? 'green' : 'red'}`
+        color: `${latency < 500 ? 'white' : 'red'}`
       });
     }
   }, [progress, serverStatusRes, dbStatusRes, latency]);

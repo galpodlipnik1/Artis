@@ -3,10 +3,12 @@ import { Stack, Paper, Divider, Button, Menu, MenuItem, Typography } from '@mui/
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { logoNoBg } from '../assets/index';
+import { useStateContext } from '../context/ContextProvider';
 
 const Topbar = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
+  const { dimensions, mousePos, zoom } = useStateContext();
 
   const handleClick = (event) => {
     setAnchorEl({
@@ -48,7 +50,7 @@ const Topbar = () => {
           alignItems: 'center'
         }}
       >
-        <Link to="/saved" style={{ textDecoration: 'none', color: '#fff', margin: '0 6px 0 6px' }}>
+        <Link to="/menu" style={{ textDecoration: 'none', color: '#fff', margin: '0 6px 0 6px' }}>
           <img src={logoNoBg} alt="logo" style={{ height: '40px', width: '40px' }} />
         </Link>
         <Button
@@ -239,15 +241,15 @@ const Topbar = () => {
           variant="body"
           sx={{ marginLeft: 'auto', marginRight: '5px', fontSize: '12px', color: '#d3d3d3' }}
         >
-          Dimensions: 0 x 0
+          Dimensions: {dimensions.width} x {dimensions.height}
         </Typography>
         <Divider orientation="vertical" flexItem sx={{ backgroundColor: '#fff' }} />
         <Typography variant="body" sx={{ marginRight: '5px', fontSize: '12px', color: '#d3d3d3' }}>
-          Position: 0 x 0
+          Position: {mousePos.x}, {mousePos.y}
         </Typography>
         <Divider orientation="vertical" flexItem sx={{ backgroundColor: '#fff' }} />
         <Typography variant="body" sx={{ marginRight: '5px', fontSize: '12px', color: '#d3d3d3' }}>
-          Zoom: 100%
+          Zoom: {Number(zoom).toFixed(0)}%
         </Typography>
         <Divider orientation="vertical" flexItem sx={{ backgroundColor: '#fff' }} />
       </Stack>

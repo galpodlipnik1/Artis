@@ -22,7 +22,7 @@ export const signIn = async (req, res) => {
 
     console.log(
       chalk.green.bold(
-        `[${new Date().toLocaleString()}] POST /user/signin ${existingUser.name} signed in.`
+        `[${new Date().toLocaleString()}] POST /user/signin ${existingUser.email} signed in.`
       )
     );
     res.status(200).json({ user: existingUser, token });
@@ -34,20 +34,16 @@ export const signIn = async (req, res) => {
 
 export const signUp = async (req, res) => {
   try {
-    const { email, password, confirmPassword, firstname, lastname } = req.body;
+    const { email, password } = req.body;
 
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) return res.status(400).json({ message: 'User already exists.' });
-
-    if (password !== confirmPassword)
-      return res.status(400).json({ message: 'Passwords do not match.' });
 
     const hashedPassword = await bcryptjs.hash(password, 12);
 
     const user = await UserModel.create({
       email,
-      password: hashedPassword,
-      name: `${firstname} ${lastname}`
+      password: hashedPassword
     });
 
     const token = jwt.sign(
@@ -57,7 +53,9 @@ export const signUp = async (req, res) => {
     );
 
     console.log(
-      chalk.green.bold(`[${new Date().toLocaleString()}] POST /user/signup ${user.name} signed up.`)
+      chalk.green.bold(
+        `[${new Date().toLocaleString()}] POST /user/signup ${user.email} signed up.`
+      )
     );
     res.status(200).json({ user, token });
   } catch (error) {

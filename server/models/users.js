@@ -9,15 +9,14 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  hasPaid: {
-    type: Boolean,
-    required: true,
-    default: false
-  },
   isAdmin: {
     type: Boolean,
     required: false,
     default: false
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
 

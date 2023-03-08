@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({ limit: '30mb', extended: true }));
 
 app.use(cors());
 
-app.use('/users', userRoutes);
+app.use('/user', userRoutes);
 app.use('/status', statusRoutes);
 
 app.get('/', (req, res) => {

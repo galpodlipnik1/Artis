@@ -2,13 +2,13 @@ import React, { useEffect } from 'react';
 import { Box } from '@mui/material';
 import { Topbar, Sidebar, MainContent } from '../components/index';
 
-const MainPage = () => {
+const Editor = () => {
   useEffect(() => {
     document.title = 'Artis | Editing...';
   }, []);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw' }}>
       <Box sx={{ flex: '0 0 auto' }}>
         <Topbar />
       </Box>
@@ -24,4 +24,4 @@ const MainPage = () => {
   );
 };
 
-export default MainPage;
+export default Editor;

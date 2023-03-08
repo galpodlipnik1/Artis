@@ -1,15 +1,36 @@
-import React from 'react';
-import { MainPage, Auth, LoadingPage, SavedDocs } from './pages';
+import React, { useEffect, useState } from 'react';
+import {
+  Editor,
+  Auth,
+  LoadingPage,
+  Menu,
+  Account,
+  Dimensions,
+  Feedback,
+  Unauthentificated
+} from './pages';
 import { HashRouter, Routes as Switch, Route } from 'react-router-dom';
 
 const App = () => {
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('profile')));
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('profile'));
+
+    if (user) {
+      setUser(user);
+    }
+  }, []);
+
   return (
     <HashRouter>
       <Switch>
-        <Route path="/" element={<LoadingPage />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/edit" element={<MainPage />} />
-        <Route path="/saved" element={<SavedDocs />} />
+        <Route path="/" element={<Auth />} />
+        <Route path="/loading" element={user ? <LoadingPage /> : <Unauthentificated />} />
+        <Route path="/edit/:type" element={user ? <Editor /> : <Unauthentificated />} />
+        <Route path="/menu" element={user ? <Menu /> : <Unauthentificated />} />
+        <Route path="/account" element={user ? <Account /> : <Unauthentificated />} />
+        <Route path="/dimensions" element={user ? <Dimensions /> : <Unauthentificated />} />
+        <Route path="/feedback" element={user ? <Feedback /> : <Unauthentificated />} />
       </Switch>
     </HashRouter>
   );

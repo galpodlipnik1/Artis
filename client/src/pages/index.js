@@ -1,6 +1,10 @@
-import MainPage from './MainPage';
+import Editor from './Editor';
 import Auth from './Auth';
 import LoadingPage from './LoadingPage';
-import SavedDocs from './SavedDocs';
+import Menu from './Menu';
+import Account from './Account';
+import Dimensions from './Dimensions';
+import Feedback from './Feedback';
+import Unauthentificated from './Unauthenticated';
 
-export { MainPage, Auth, LoadingPage, SavedDocs };
+export { Editor, Auth, LoadingPage, Menu, Account, Dimensions, Feedback, Unauthentificated };

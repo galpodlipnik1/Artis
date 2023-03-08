@@ -10,8 +10,8 @@ API.interceptors.request.use((req) => {
   return req;
 });
 
-export const signIn = () => API.get('/user/signin');
-export const signUp = () => API.get('/user/signup');
+export const signIn = (formData) => API.post('/user/signin', formData);
+export const signUp = (formData) => API.post('/user/signup', formData);
 
 export const dbStatus = () => API.get('/status/db');
 export const serverStatus = () => API.get('/status/server');
