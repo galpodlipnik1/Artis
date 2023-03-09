@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Tooltip, IconButton, Typography, Avatar, Button } from '@mui/material';
 import { AiFillFolderOpen, AiOutlineCloudDownload } from 'react-icons/ai';
@@ -8,11 +8,14 @@ import { VscNewFile } from 'react-icons/vsc';
 import { TfiWorld } from 'react-icons/tfi';
 import { logoNoBg } from '../assets';
 import { bgGrayColorDark, sideBarBgColor, bgGrayColorLight } from '../constants/colors';
+import { CloudPopup } from '../components';
 import { useStateContext } from '../context/ContextProvider';
 
 const Menu = () => {
   const navigate = useNavigate();
   const { user, setDimensions } = useStateContext();
+  const [openCloudPopup, setOpenCloudPopup] = useState(false);
+
   const buttonStyle = {
     minWidth: '100px',
     minHeight: '100px',
@@ -125,7 +128,7 @@ const Menu = () => {
               <AiFillFolderOpen size="2rem" color="#d3d3d3" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Open from cloud" placement="top">
+          <Tooltip title="Open from cloud" placement="top" onClick={() => setOpenCloudPopup(true)}>
             <IconButton variant="contained" size="small" sx={buttonStyle}>
               <AiOutlineCloudDownload size="2rem" color="#d3d3d3" />
             </IconButton>
@@ -164,6 +167,7 @@ const Menu = () => {
           &copy; {new Date().getFullYear()} Artis | All rights reserved
         </Typography>
       </Box>
+      <CloudPopup open={openCloudPopup} setOpen={setOpenCloudPopup} />
     </Box>
   );
 };

@@ -1,3 +1,5 @@
+import { createCloud } from '../actions/cloud';
+
 export const handleTopBarFile = (name, canvasState, navigate) => {
   switch (name) {
     case 'New':
@@ -49,9 +51,10 @@ const handleOpen = (navigate) => {
   input.click();
 };
 
-const handleSaveToCloud = (canvasState) => {
+const handleSaveToCloud = async (canvasState) => {
   const data = canvasState.toDataURL();
-  //TODO send the data with other info to the server
+  const name = prompt('Enter image name');
+  const res = await createCloud({ name, data });
 };
 
 const handleSaveFile = (canvasState) => {

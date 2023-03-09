@@ -35,7 +35,7 @@ const Topbar = () => {
     } else if (menuType === 'Format') {
       handleTopBarFormat(el);
     } else if (menuType === 'Help') {
-      handleTopBarHelp(el);
+      handleTopBarHelp(el, navigate);
     }
     handleClose();
   };

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const savedImageSchema = mongoose.Schema({
+const cloud = mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -21,4 +21,4 @@ const savedImageSchema = mongoose.Schema({
   }
 });
 
-export default mongoose.model('SavedImage', savedImageSchema);
+export default mongoose.model('cloud', cloud);

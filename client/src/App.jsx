@@ -7,6 +7,7 @@ import {
   Account,
   Dimensions,
   Public,
+  About,
   Unauthentificated
 } from './pages';
 import { HashRouter, Routes as Switch, Route } from 'react-router-dom';
@@ -25,12 +26,13 @@ const App = () => {
     <HashRouter>
       <Switch>
         <Route path="/" element={<Auth />} />
-        <Route path="/loading" element={user ? <LoadingPage /> : <Unauthentificated />} />
+        <Route path="/loading" element={<LoadingPage />} />
         <Route path="/edit/:type" element={user ? <Editor /> : <Unauthentificated />} />
         <Route path="/menu" element={user ? <Menu /> : <Unauthentificated />} />
         <Route path="/account" element={user ? <Account /> : <Unauthentificated />} />
         <Route path="/dimensions" element={user ? <Dimensions /> : <Unauthentificated />} />
         <Route path="/public" element={user ? <Public /> : <Unauthentificated />} />
+        <Route path="/about" element={user ? <About /> : <Unauthentificated />} />
       </Switch>
     </HashRouter>
   );

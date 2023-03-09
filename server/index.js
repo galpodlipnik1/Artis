@@ -9,6 +9,7 @@ dotenv.config();
 import userRoutes from './routes/users.js';
 import statusRoutes from './routes/status.js';
 import dimensionsRoutes from './routes/dimensions.js';
+import cloudRoutes from './routes/cloud.js';
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(cors());
 app.use('/user', userRoutes);
 app.use('/status', statusRoutes);
 app.use('/dimensions', dimensionsRoutes);
+app.use('/cloud', cloudRoutes);
 
 app.get('/', (req, res) => {
   const messageJson = {
