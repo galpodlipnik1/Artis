@@ -11,11 +11,11 @@ const presetDimentionsSchema = mongoose.Schema({
     ref: 'User',
     required: true
   },
-  dimentionX: {
+  dimensionX: {
     type: Number,
     required: true
   },
-  dimentionY: {
+  dimensionY: {
     type: Number,
     required: true
   },

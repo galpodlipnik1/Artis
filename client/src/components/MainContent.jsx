@@ -4,20 +4,13 @@ import { useStateContext } from '../context/ContextProvider';
 import { calculateDefaultDimensions } from '../util';
 import { useParams, useLocation } from 'react-router-dom';
 
-import { fabric } from 'fabric';
-
 const MainContent = () => {
   const { type } = useParams();
   const { state } = useLocation();
   const canvasRef = useRef(null);
   const { dimensions, setCanvasState, setMousePos } = useStateContext();
   const [canvas, setCanvas] = useState(null);
-  const [imageSettings, setImageSettings] = useState({
-    selectable: false,
-    evented: false,
-    hasControls: false,
-    hoverCursor: 'default'
-  });
+
   const [currentPixelData, setCurrentPixelData] = useState(null);
   useEffect(() => {
     let newCanvas = null;
@@ -27,52 +20,46 @@ const MainContent = () => {
       backupDimensions = { width, height };
     }
     if (canvasRef.current) {
-      newCanvas = new fabric.Canvas(canvasRef.current, {
-        backgroundColor: 'white',
-        width: dimensions?.width || backupDimensions?.width,
-        height: dimensions?.height || backupDimensions?.height
-      });
+      newCanvas = document.getElementById('canvas');
       setCanvas(newCanvas);
       setCanvasState(newCanvas);
-    }
-    if (type === 'image') {
-      const img = new Image();
-      img.src = state.imageData;
-      img.onload = function () {
-        const newImage = new fabric.Image(img);
-        newImage.selectable = imageSettings.selectable;
-        newImage.evented = imageSettings.evented;
-        newImage.hasControls = imageSettings.hasControls;
-        newImage.hoverCursor = imageSettings.hoverCursor;
-        const { width, height } = newImage;
-        if (width > dimensions.width || height > dimensions.height) {
-          const ratio = Math.min(dimensions.width / width, dimensions.height / height);
-          newCanvas.setDimensions({ width: width * ratio, height: height * ratio });
-          newImage.scale(ratio);
-        } else {
-          const ratio = Math.max(dimensions.width / width, dimensions.height / height);
-          newCanvas.setDimensions({ width: (width * ratio) / 2, height: (height * ratio) / 2 });
-          newImage.scale(ratio);
-        }
-        //get pixel data
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        const pixelData = ctx.getImageData(0, 0, width, height);
-        setCurrentPixelData(pixelData.data);
-        newCanvas.add(newImage);
-      };
+      newCanvas.width = backupDimensions.width;
+      newCanvas.height = backupDimensions.height;
+
+      if (type === 'image') {
+        const ctx = newCanvas.getContext('2d');
+        const img = new Image();
+        img.src = state.imageData;
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0, newCanvas.width, newCanvas.height);
+        };
+      } else if (type === 'blank') {
+        const ctx = newCanvas.getContext('2d');
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+      }
     }
   }, []);
   useEffect(() => {
+    const getMousePos = (canvas, evt) => {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+      };
+    };
+    const handleMouseMove = (e) => {
+      const mousePos = getMousePos(canvas, e);
+      setMousePos(mousePos);
+    };
     if (canvas) {
-      canvas.on('mouse:move', (e) => {
-        const { x, y } = e.pointer;
-        setMousePos({ x: Number(x).toFixed(0), y: Number(y).toFixed(0) });
-      });
+      canvas.addEventListener('mousemove', handleMouseMove);
     }
+    return () => {
+      if (canvas) {
+        canvas.removeEventListener('mousemove', handleMouseMove);
+      }
+    };
   }, [canvas]);
 
   return (

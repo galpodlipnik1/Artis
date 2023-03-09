@@ -6,54 +6,127 @@ import { MdLensBlur, MdGradient } from 'react-icons/md';
 import { DiFsharp } from 'react-icons/di';
 import { GiAlienFire, GiLevelTwo, GiArrowCursor } from 'react-icons/gi';
 import { CgEditNoise, CgColorPicker } from 'react-icons/cg';
-import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
+import { AiOutlineUndo } from 'react-icons/ai';
 import { Box } from '@mui/system';
 
 import { useStateContext } from '../context/ContextProvider';
 
-import { blurFilter, saturationFilter } from '../functions/filters';
+import {
+  blurFilter,
+  saturationFilter,
+  sharpnessFilter,
+  levelsFilter,
+  grayscaleFilter
+} from '../functions/filters';
 
 const Sidebar = () => {
-  const { canvasState, setZoom } = useStateContext();
-  const [originalData, setOriginalData] = useState([]);
+  const { canvasState, setZoom, dimensions, zoom } = useStateContext();
+  const [originalData, setOriginalData] = useState(null);
+  const [currentImageData, setCurrentImageData] = useState(null);
 
-  const handleZoomIn = () => {
-    canvasState.setZoom(canvasState.getZoom() * 1.1);
-    setZoom(canvasState.getZoom() * 100);
-  };
-  const handleZoomOut = () => {
-    canvasState.setZoom(canvasState.getZoom() / 1.1);
-    setZoom(canvasState.getZoom() * 100);
+  const handleRevert = () => {
+    const ctx = canvasState.getContext('2d');
+    if (!originalData) return;
+    const originalImage = new ImageData(originalData, dimensions.width, dimensions.height);
+    ctx.putImageData(originalImage, 0, 0);
+    setCurrentImageData(originalImage);
   };
 
   const handleBlur = () => {
-    console.log('blur');
-    //get the current canvas data as a pixel array
-    const canvas = document.createElement('canvas');
-    canvas.width = canvasState.width;
-    canvas.height = canvasState.height;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(canvasState.lowerCanvasEl, 0, 0);
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const newImageData = blurFilter(imageData);
+    let pixels = null;
+    const ctx = canvasState.getContext('2d');
+    if (!originalData) {
+      const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+      pixels = imageData.data;
+      setOriginalData(pixels);
+    }
+    const newImageData = blurFilter(
+      originalData !== null ? originalData : pixels,
+      dimensions.width,
+      dimensions.height
+    );
+    setCurrentImageData(newImageData);
     ctx.putImageData(newImageData, 0, 0);
-    const newImage = new Image();
-    newImage.src = canvas.toDataURL();
-    newImage.onload = function () {
-      canvasState.clear();
-      canvasState.add(newImage);
-    };
-
-
   };
-  
+
+  const handleSaturation = () => {
+    let pixels = null;
+    const ctx = canvasState.getContext('2d');
+    if (!originalData) {
+      const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+      pixels = imageData.data;
+      setOriginalData(pixels);
+    }
+    const newImageData = saturationFilter(
+      originalData != null ? originalData : pixels,
+      dimensions.width,
+      dimensions.height,
+      1.5
+    );
+    setCurrentImageData(newImageData);
+    ctx.putImageData(newImageData, 0, 0);
+  };
+
+  const handleSharpness = () => {
+    let pixels = null;
+    const ctx = canvasState.getContext('2d');
+    if (!originalData) {
+      const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+      pixels = imageData.data;
+      setOriginalData(pixels);
+    }
+    const newImageData = sharpnessFilter(
+      originalData != null ? originalData : pixels,
+      dimensions.width,
+      dimensions.height
+    );
+    setCurrentImageData(newImageData);
+    ctx.putImageData(newImageData, 0, 0);
+  };
+
+  const handleLevels = () => {
+    let pixels = null;
+    const ctx = canvasState.getContext('2d');
+    if (!originalData) {
+      const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+      pixels = imageData.data;
+      setOriginalData(pixels);
+    }
+    const gamma = window.prompt('Enter the gamma value:');
+    const newImageData = levelsFilter(
+      originalData != null ? originalData : pixels,
+      dimensions.width,
+      dimensions.height,
+      gamma
+    );
+    setCurrentImageData(newImageData);
+    ctx.putImageData(newImageData, 0, 0);
+  };
+
+  const handleGrayscale = () => {
+    let pixels = null;
+    const ctx = canvasState.getContext('2d');
+    if (!originalData) {
+      const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+      pixels = imageData.data;
+      setOriginalData(pixels);
+    }
+    const newImageData = grayscaleFilter(
+      originalData != null ? originalData : pixels,
+      dimensions.width,
+      dimensions.height
+    );
+    setCurrentImageData(newImageData);
+    ctx.putImageData(newImageData, 0, 0);
+  };
+
   const buttonStyle = {
     backgroundColor: '#5d5d5d',
     color: '#fff',
     margin: '5px',
     ':hover': {
-      backgroundColor: '#838383',
-    },
+      backgroundColor: '#838383'
+    }
   };
   return (
     <Paper
@@ -124,16 +197,6 @@ const Sidebar = () => {
               {<CgColorPicker />}{' '}
             </IconButton>
           </Tooltip>
-          <Tooltip title="Zoom In" placement="right" onClick={handleZoomIn}>
-            <IconButton variant="contained" size="small" sx={buttonStyle}>
-              {<AiOutlineZoomIn />}{' '}
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Zoom Out" placement="right" onClick={handleZoomOut}>
-            <IconButton variant="contained" size="small" sx={buttonStyle}>
-              {<AiOutlineZoomOut />}{' '}
-            </IconButton>
-          </Tooltip>
         </Box>
         <Box
           sx={{
@@ -143,35 +206,32 @@ const Sidebar = () => {
             alignItems: 'center'
           }}
         >
+          <Tooltip title="Revert" placement="right" onClick={handleRevert}>
+            <IconButton variant="contained" size="small" sx={buttonStyle}>
+              {<AiOutlineUndo />}{' '}
+            </IconButton>
+          </Tooltip>
           <Tooltip title="Blur" placement="right" onClick={handleBlur}>
             <IconButton variant="contained" size="small" sx={buttonStyle}>
               {<MdLensBlur />}{' '}
             </IconButton>
           </Tooltip>
-          <Tooltip title="Sharpen" placement="right">
+          <Tooltip title="Sharpen" placement="right" onClick={handleSharpness}>
             <IconButton variant="contained" size="small" sx={buttonStyle}>
               {<DiFsharp />}{' '}
             </IconButton>
           </Tooltip>
-          <Tooltip
-            title="Hue/Saturation"
-            placement="right"
-          >
+          <Tooltip title="Hue/Saturation" placement="right" onClick={handleSaturation}>
             <IconButton variant="contained" size="small" sx={buttonStyle}>
               {<GiAlienFire />}{' '}
             </IconButton>
           </Tooltip>
-          <Tooltip title="Levels" placement="right">
+          <Tooltip title="Levels" placement="right" onClick={handleLevels}>
             <IconButton variant="contained" size="small" sx={buttonStyle}>
               {<GiLevelTwo />}{' '}
             </IconButton>
           </Tooltip>
-          <Tooltip title="Gradient" placement="right">
-            <IconButton variant="contained" size="small" sx={buttonStyle}>
-              {<MdGradient />}{' '}
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Noise" placement="right">
+          <Tooltip title="Grayscale" placement="right" onClick={handleGrayscale}>
             <IconButton variant="contained" size="small" sx={buttonStyle}>
               {<CgEditNoise />}{' '}
             </IconButton>

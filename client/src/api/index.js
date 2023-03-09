@@ -13,5 +13,8 @@ API.interceptors.request.use((req) => {
 export const signIn = (formData) => API.post('/user/signin', formData);
 export const signUp = (formData) => API.post('/user/signup', formData);
 
+export const fetchPresets = () => API.get('/dimensions');
+export const createPreset = (newPreset) => API.post('/dimensions', newPreset);
+
 export const dbStatus = () => API.get('/status/db');
 export const serverStatus = () => API.get('/status/server');

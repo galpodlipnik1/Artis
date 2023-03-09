@@ -19,7 +19,7 @@ const App = () => {
     if (user) {
       setUser(user);
     }
-  }, []);
+  }, [localStorage.getItem('profile')]);
 
   return (
     <HashRouter>
