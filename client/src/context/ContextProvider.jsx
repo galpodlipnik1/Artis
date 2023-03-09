@@ -10,6 +10,7 @@ export const ContextProvider = ({ children }) => {
   const [canvasState, setCanvasState] = useState(null);
   const [zoom, setZoom] = useState(100);
   const [presetsState, setPresetsState] = useState([]);
+  const [statusBar, setStatusBar] = useState(false);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('profile'));
@@ -42,6 +43,8 @@ export const ContextProvider = ({ children }) => {
         setZoom,
         presetsState,
         setPresetsState,
+        setStatusBar,
+        statusBar
       }}
     >
       {children}

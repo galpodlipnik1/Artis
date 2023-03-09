@@ -4,11 +4,17 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { logoNoBg } from '../assets/index';
 import { useStateContext } from '../context/ContextProvider';
+import {
+  handleTopBarFile,
+  handleTopBarView,
+  handleTopBarFormat,
+  handleTopBarHelp
+} from '../functions/handlerExport';
 
 const Topbar = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
-  const { dimensions, mousePos, zoom } = useStateContext();
+  const { dimensions, mousePos, zoom, canvasState, setStatusBar, statusBar } = useStateContext();
 
   const handleClick = (event) => {
     setAnchorEl({
@@ -19,6 +25,19 @@ const Topbar = () => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleMenuClick = (el, menuType) => {
+    if (menuType === 'File') {
+      handleTopBarFile(el, canvasState, navigate);
+    } else if (menuType === 'View') {
+      handleTopBarView(el, setStatusBar, statusBar);
+    } else if (menuType === 'Format') {
+      handleTopBarFormat(el);
+    } else if (menuType === 'Help') {
+      handleTopBarHelp(el);
+    }
+    handleClose();
   };
 
   return (
@@ -84,51 +103,15 @@ const Topbar = () => {
             }
           }}
         >
-          <MenuItem onClick={handleClose}>New</MenuItem>
-          <MenuItem onClick={handleClose}>Open</MenuItem>
-          <MenuItem onClick={handleClose}>Save</MenuItem>
-          <MenuItem onClick={handleClose}>Save As</MenuItem>
-          <MenuItem onClick={handleClose}>Page Setup</MenuItem>
-          <MenuItem onClick={handleClose}>Print</MenuItem>
-          <MenuItem onClick={handleClose}>Exit</MenuItem>
-        </Menu>
-        <Divider orientation="vertical" flexItem sx={{ backgroundColor: '#fff' }} />
-        <Button
-          variant="contained"
-          size="small"
-          id="edit-button"
-          aria-controls="edit-menu"
-          aria-haspopup="true"
-          aria-expanded={anchorEl ? 'true' : undefined}
-          onClick={handleClick}
-          sx={{
-            backgroundColor: '#5d5d5d',
-            color: '#fff',
-            ':hover': { backgroundColor: '#838383' }
-          }}
-        >
-          Edit
-        </Button>
-        <Menu
-          id="edit-menu"
-          anchorEl={anchorEl ? anchorEl.el : null}
-          open={Boolean(anchorEl) && anchorEl.controller === 'edit-menu'}
-          onClose={handleClose}
-          MenuListProps={{
-            'aria-labelledby': 'edit-button'
-          }}
-          sx={{
-            '& .MuiMenu-list': {
-              backgroundColor: '#5d5d5d',
-              color: '#fff'
-            }
-          }}
-        >
-          <MenuItem onClick={handleClose}>Undo</MenuItem>
-          <MenuItem onClick={handleClose}>Redo</MenuItem>
-          <MenuItem onClick={handleClose}>Cut</MenuItem>
-          <MenuItem onClick={handleClose}>Copy</MenuItem>
-          <MenuItem onClick={handleClose}>Paste</MenuItem>
+          <MenuItem onClick={() => handleMenuClick('New', 'File')}>New</MenuItem>
+          <MenuItem onClick={() => handleMenuClick('Open', 'File')}>Open</MenuItem>
+          <MenuItem onClick={() => handleMenuClick('Save to cloud', 'File')}>
+            Save to cloud
+          </MenuItem>
+          <MenuItem onClick={() => handleMenuClick('Save File', 'File')}>Save File</MenuItem>
+          <MenuItem onClick={() => handleMenuClick('Page Setup', 'File')}>Page Setup</MenuItem>
+          <MenuItem onClick={() => handleMenuClick('Print', 'File')}>Print</MenuItem>
+          <MenuItem onClick={() => handleMenuClick('Exit', 'File')}>Exit</MenuItem>
         </Menu>
         <Divider orientation="vertical" flexItem sx={{ backgroundColor: '#fff' }} />
         <Button
@@ -162,8 +145,7 @@ const Topbar = () => {
             }
           }}
         >
-          <MenuItem onClick={handleClose}>Zoom</MenuItem>
-          <MenuItem onClick={handleClose}>Status Bar</MenuItem>
+          <MenuItem onClick={() => handleMenuClick('Status Bar', 'View')}>Status Bar</MenuItem>
         </Menu>
         <Divider orientation="vertical" flexItem sx={{ backgroundColor: '#fff' }} />
         <Button
@@ -197,9 +179,9 @@ const Topbar = () => {
             }
           }}
         >
-          <MenuItem onClick={handleClose}>Font</MenuItem>
-          <MenuItem onClick={handleClose}>Align</MenuItem>
-          <MenuItem onClick={handleClose}>Borders</MenuItem>
+          <MenuItem onClick={() => handleMenuClick('Font', 'Format')}>Font</MenuItem>
+          <MenuItem onClick={() => handleMenuClick('Align', 'Format')}>Align</MenuItem>
+          <MenuItem onClick={() => handleMenuClick('Borders', 'Format')}>Borders</MenuItem>
         </Menu>
         <Divider orientation="vertical" flexItem sx={{ backgroundColor: '#fff' }} />
         <Button
@@ -233,8 +215,10 @@ const Topbar = () => {
             }
           }}
         >
-          <MenuItem onClick={handleClose}>View Help</MenuItem>
-          <MenuItem onClick={handleClose}>Send Feedback</MenuItem>
+          <MenuItem onClick={() => handleMenuClick('Send Feedback', 'Help')}>
+            Send Feedback
+          </MenuItem>
+          <MenuItem onClick={() => handleMenuClick('About', 'Help')}>About Artis</MenuItem>
         </Menu>
         <Divider orientation="vertical" flexItem sx={{ backgroundColor: '#fff' }} />
         <Typography

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Stack, Paper, Divider, IconButton, Tooltip } from '@mui/material';
 import { BsFillBrushFill, BsEraserFill } from 'react-icons/bs';
 import { BiText, BiCrop } from 'react-icons/bi';
-import { MdLensBlur, MdGradient } from 'react-icons/md';
+import { MdLensBlur, MdInvertColors } from 'react-icons/md';
 import { DiFsharp } from 'react-icons/di';
 import { GiAlienFire, GiLevelTwo, GiArrowCursor } from 'react-icons/gi';
 import { CgEditNoise, CgColorPicker } from 'react-icons/cg';
@@ -16,7 +16,8 @@ import {
   saturationFilter,
   sharpnessFilter,
   levelsFilter,
-  grayscaleFilter
+  grayscaleFilter,
+  invertFilter
 } from '../functions/filters';
 
 const Sidebar = () => {
@@ -112,6 +113,23 @@ const Sidebar = () => {
       setOriginalData(pixels);
     }
     const newImageData = grayscaleFilter(
+      originalData != null ? originalData : pixels,
+      dimensions.width,
+      dimensions.height
+    );
+    setCurrentImageData(newImageData);
+    ctx.putImageData(newImageData, 0, 0);
+  };
+
+  const handleInvert = () => {
+    let pixels = null;
+    const ctx = canvasState.getContext('2d');
+    if (!originalData) {
+      const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+      pixels = imageData.data;
+      setOriginalData(pixels);
+    }
+    const newImageData = invertFilter(
       originalData != null ? originalData : pixels,
       dimensions.width,
       dimensions.height
@@ -234,6 +252,11 @@ const Sidebar = () => {
           <Tooltip title="Grayscale" placement="right" onClick={handleGrayscale}>
             <IconButton variant="contained" size="small" sx={buttonStyle}>
               {<CgEditNoise />}{' '}
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Invert" placement="right" onClick={handleInvert}>
+            <IconButton variant="contained" size="small" sx={buttonStyle}>
+              {<MdInvertColors />}{' '}
             </IconButton>
           </Tooltip>
         </Box>

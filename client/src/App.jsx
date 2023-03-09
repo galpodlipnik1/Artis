@@ -6,7 +6,7 @@ import {
   Menu,
   Account,
   Dimensions,
-  Feedback,
+  Public,
   Unauthentificated
 } from './pages';
 import { HashRouter, Routes as Switch, Route } from 'react-router-dom';
@@ -30,7 +30,7 @@ const App = () => {
         <Route path="/menu" element={user ? <Menu /> : <Unauthentificated />} />
         <Route path="/account" element={user ? <Account /> : <Unauthentificated />} />
         <Route path="/dimensions" element={user ? <Dimensions /> : <Unauthentificated />} />
-        <Route path="/feedback" element={user ? <Feedback /> : <Unauthentificated />} />
+        <Route path="/public" element={user ? <Public /> : <Unauthentificated />} />
       </Switch>
     </HashRouter>
   );

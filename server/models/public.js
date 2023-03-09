@@ -1,18 +1,17 @@
 import mongoose from 'mongoose';
 
 const feedbackSchema = mongoose.Schema({
-  email: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  accountId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  feedback: {
+  name: {
     type: String,
     required: true
+  },
+  imageData: {
+    type: String,
+    required: true
+  },
+  likes: {
+    type: Array,
+    default: []
   },
   createdAt: {
     type: Date,

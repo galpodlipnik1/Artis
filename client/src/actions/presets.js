@@ -17,3 +17,11 @@ export const createPreset = async (preset) => {
     console.log(error);
   }
 };
+
+export const deletePreset = async (id) => {
+  try {
+    await api.deletePreset(id);
+  } catch (error) {
+    console.log(error);
+  }
+};

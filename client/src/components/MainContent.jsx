@@ -3,15 +3,15 @@ import { Box } from '@mui/material';
 import { useStateContext } from '../context/ContextProvider';
 import { calculateDefaultDimensions } from '../util';
 import { useParams, useLocation } from 'react-router-dom';
+import { StatusPopup } from './';
 
 const MainContent = () => {
   const { type } = useParams();
   const { state } = useLocation();
   const canvasRef = useRef(null);
-  const { dimensions, setCanvasState, setMousePos } = useStateContext();
+  const { dimensions, setCanvasState, setMousePos, setDimensions } = useStateContext();
   const [canvas, setCanvas] = useState(null);
 
-  const [currentPixelData, setCurrentPixelData] = useState(null);
   useEffect(() => {
     let newCanvas = null;
     let backupDimensions = dimensions;
@@ -31,6 +31,10 @@ const MainContent = () => {
         const img = new Image();
         img.src = state.imageData;
         img.onload = () => {
+          const { width, height } = calculateDefaultDimensions(img.width, img.height);
+          setDimensions({ width, height });
+          newCanvas.width = width;
+          newCanvas.height = height;
           ctx.drawImage(img, 0, 0, newCanvas.width, newCanvas.height);
         };
       } else if (type === 'blank') {
@@ -74,6 +78,7 @@ const MainContent = () => {
       }}
     >
       <canvas ref={canvasRef} id="canvas" />
+      <StatusPopup />
     </Box>
   );
 };

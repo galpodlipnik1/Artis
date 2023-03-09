@@ -15,6 +15,7 @@ export const signUp = (formData) => API.post('/user/signup', formData);
 
 export const fetchPresets = () => API.get('/dimensions');
 export const createPreset = (newPreset) => API.post('/dimensions', newPreset);
+export const deletePreset = (id) => API.delete(`/dimensions/${id}`);
 
 export const dbStatus = () => API.get('/status/db');
 export const serverStatus = () => API.get('/status/server');

@@ -4,7 +4,8 @@ import { Box, Tooltip, IconButton, Typography, Avatar, Button } from '@mui/mater
 import { AiFillFolderOpen, AiOutlineCloudDownload } from 'react-icons/ai';
 import { MdOutlineAccountCircle } from 'react-icons/md';
 import { TbDimensions } from 'react-icons/tb';
-import { VscFeedback, VscNewFile } from 'react-icons/vsc';
+import { VscNewFile } from 'react-icons/vsc';
+import { TfiWorld } from 'react-icons/tfi';
 import { logoNoBg } from '../assets';
 import { bgGrayColorDark, sideBarBgColor, bgGrayColorLight } from '../constants/colors';
 import { useStateContext } from '../context/ContextProvider';
@@ -23,6 +24,8 @@ const Menu = () => {
   };
   useEffect(() => {
     document.title = 'Artis | Menu...';
+
+    setDimensions({ height: 0, width: 0 });
   }, []);
 
   const handleLogout = () => {
@@ -136,9 +139,9 @@ const Menu = () => {
               <TbDimensions size="2rem" color="#d3d3d3" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Feedback" placement="bottom" onClick={() => navigate('/feedback')}>
+          <Tooltip title="Public" placement="bottom" onClick={() => navigate('/public')}>
             <IconButton variant="contained" size="small" sx={buttonStyle}>
-              <VscFeedback size="2rem" color="#d3d3d3" />
+              <TfiWorld size="2rem" color="#d3d3d3" />
             </IconButton>
           </Tooltip>
           <Tooltip title="Account" placement="bottom" onClick={() => navigate('/account')}>

@@ -154,3 +154,20 @@ export const grayscaleFilter = (pixels, width, height) => {
 
   return new ImageData(newData, width, height);
 };
+
+export const invertFilter = (pixels, width, height) => {
+  const newData = new Uint8ClampedArray(pixels.length);
+
+  for (let i = 0; i < pixels.length; i += 4) {
+    const r = pixels[i];
+    const g = pixels[i + 1];
+    const b = pixels[i + 2];
+
+    newData[i] = 255 - r;
+    newData[i + 1] = 255 - g;
+    newData[i + 2] = 255 - b;
+    newData[i + 3] = pixels[i + 3];
+  }
+
+  return new ImageData(newData, width, height);
+};

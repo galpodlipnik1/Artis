@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button, Paper } from '@mui/material';
 import { bgGrayColorLight, bgGrayColorDark, sideBarBgColor } from '../constants/colors';
 import { NewPresetPopup, CardDisplay } from '../components';
@@ -7,6 +7,11 @@ import { useNavigate } from 'react-router-dom';
 const Dimensions = () => {
   const navigate = useNavigate();
   const [openNewPreset, setOpenNewPreset] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    document.title = 'Artis | Dimensions...';
+  }, []);
 
   return (
     <Box sx={{ width: '100vw', height: '100vh' }}>
@@ -42,6 +47,16 @@ const Dimensions = () => {
           >
             Dimensions Presets
           </Typography>
+          {isDeleting && (
+            <Typography
+              variant="h6"
+              component="div"
+              gutterBottom
+              sx={{ padding: '10px', color: 'red' }}
+            >
+              Deleting Presets
+            </Typography>
+          )}
           <Box>
             <Button
               variant="contained"
@@ -52,6 +67,7 @@ const Dimensions = () => {
             </Button>
             <Button
               variant="contained"
+              onClick={() => setIsDeleting(!isDeleting)}
               sx={{ margin: '10px', backgroundColor: bgGrayColorLight, color: sideBarBgColor }}
             >
               Delete Preset
@@ -76,7 +92,7 @@ const Dimensions = () => {
             gutterBottom
             sx={{ padding: '10px', color: 'gray' }}
           >
-            <CardDisplay />
+            <CardDisplay isDeleting={isDeleting} />
           </Typography>
         </Paper>
         <Paper
@@ -103,17 +119,6 @@ const Dimensions = () => {
             }}
           >
             Back
-          </Button>
-          <Button
-            variant="contained"
-            sx={{
-              margin: '10px',
-              backgroundColor: bgGrayColorLight,
-              color: sideBarBgColor,
-              width: '10%'
-            }}
-          >
-            Save
           </Button>
         </Paper>
       </Box>

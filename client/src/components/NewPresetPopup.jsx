@@ -4,7 +4,6 @@ import { bgGrayColorLight, bgGrayColorDark, sideBarBgColor } from '../constants/
 import { createPreset } from '../actions/presets';
 import { useStateContext } from '../context/ContextProvider';
 
-
 const NewPresetPopup = ({ open, setOpen }) => {
   const { presetsState, setPresetsState } = useStateContext();
   const [presetDetails, setPresetDetails] = useState({ name: '', width: 0, height: 0 });
@@ -14,8 +13,8 @@ const NewPresetPopup = ({ open, setOpen }) => {
   };
 
   const handleSubmit = async () => {
-    if(presetDetails.width > 1400 || presetDetails.height > 600) {
-      alert('Please enter dimensions less than 1400x600');
+    if (presetDetails.width > 1400 || presetDetails.height > 600) {
+      alert('Please enter dimensions less than 1400x800');
       setPresetDetails({ name: '', width: 0, height: 0 });
       return;
     }
@@ -138,7 +137,10 @@ const NewPresetPopup = ({ open, setOpen }) => {
             <Button
               variant="contained"
               sx={{ margin: '15px', backgroundColor: bgGrayColorLight, color: sideBarBgColor }}
-              onClick={() => { handleSubmit(); setOpen(false); }}
+              onClick={() => {
+                handleSubmit();
+                setOpen(false);
+              }}
             >
               Save
             </Button>
