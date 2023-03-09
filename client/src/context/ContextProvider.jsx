@@ -25,7 +25,7 @@ export const ContextProvider = ({ children }) => {
       const { width, height } = calculateDefaultDimensions(window.innerWidth, window.innerHeight);
       setDimensions({ width, height });
     }
-  }, []);
+  }, [dimensions]);
 
   return (
     <StateContext.Provider

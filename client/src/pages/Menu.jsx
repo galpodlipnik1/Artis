@@ -11,7 +11,7 @@ import { useStateContext } from '../context/ContextProvider';
 
 const Menu = () => {
   const navigate = useNavigate();
-  const { user } = useStateContext();
+  const { user, setDimensions } = useStateContext();
   const buttonStyle = {
     minWidth: '100px',
     minHeight: '100px',
@@ -28,6 +28,11 @@ const Menu = () => {
   const handleLogout = () => {
     localStorage.removeItem('profile');
     navigate('/');
+  };
+
+  const handleBlank = () => {
+    setDimensions({ height: 0, width: 0 });
+    navigate('/edit/blank');
   };
 
   const handleOpenFromPC = () => {
@@ -107,7 +112,7 @@ const Menu = () => {
             width: '25%'
           }}
         >
-          <Tooltip title="New blank" placement="top" onClick={() => navigate('/edit/blank')}>
+          <Tooltip title="New blank" placement="top" onClick={handleBlank}>
             <IconButton variant="contained" size="small" sx={buttonStyle}>
               <VscNewFile size="2rem" color="#d3d3d3" />
             </IconButton>
