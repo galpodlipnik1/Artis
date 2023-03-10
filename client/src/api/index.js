@@ -17,12 +17,14 @@ export const fetchPresets = () => API.get('/dimensions');
 export const createPreset = (newPreset) => API.post('/dimensions', newPreset);
 export const deletePreset = (id) => API.delete(`/dimensions/${id}`);
 
-export const fetchImages = () => API.get('/cloud');
+export const fetchImages = (page) => API.get(`/cloud/${page}`);
 export const createImage = (newImage) => API.post('/cloud', newImage);
 export const deleteImage = (id) => API.delete(`/cloud/${id}`);
 
 export const fetchPublicImages = (page) => API.get(`/public/${page}`);
 export const createPublicImage = (cloudImageId) => API.post('/public', { cloudImageId });
+export const updatePublicImage = (id, newLikes) => API.put(`/public/${id}`, {likes: newLikes});
+export const deletePublicImage = (cloudId) => API.delete(`/public/${cloudId }`);
 
 export const dbStatus = () => API.get('/status/db');
 export const serverStatus = () => API.get('/status/server');

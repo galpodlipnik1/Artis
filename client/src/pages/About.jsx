@@ -18,7 +18,17 @@ const About = () => {
   const navigate = useNavigate();
   return (
     <Box sx={{ width: '100vw', height: '100vh' }}>
-      <Box sx={{ width: '100%', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '30px', my: '.5rem' }}>
+      <Box
+        sx={{
+          width: '100%',
+          height: '60px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: '30px',
+          my: '.5rem'
+        }}
+      >
         <IconButton onClick={() => navigate('/menu')}>
           <IoMdArrowRoundBack size={30} />
         </IconButton>

@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Modal, Typography, Button, TextField, Radio, FormControl, RadioGroup, FormControlLabel, FormLabel } from '@mui/material';
+import {
+  Box,
+  Modal,
+  Typography,
+  Button,
+  TextField,
+  Radio,
+  FormControl,
+  RadioGroup,
+  FormControlLabel,
+  FormLabel
+} from '@mui/material';
 import { bgGrayColorLight, bgGrayColorDark, sideBarBgColor } from '../constants/colors';
 import { createCloud } from '../actions/cloud';
 import { createPublic } from '../actions/public';
@@ -97,40 +108,44 @@ const SaveToCloudPopup = ({ open, setOpen, canvas }) => {
             justifyContent: 'start'
           }}
         >
-          <Box sx={{ width: '80%', display: 'flex', flexDirection: 'column', mt:'3rem' }}>
-          <TextField
-            id="outlined-basic"
-            label="Name"
-            variant="outlined"
-            sx={TextFieldStyle}
-            InputLabelProps={{ style: { color: bgGrayColorLight } }}
-            value={enteredName}
-            onChange={handleNameChange}
-          />
-          <FormControl sx={{ mt:'1rem' }} >
-            <FormLabel sx={{ color: '#fff' }}>Privacy</FormLabel>
-            <RadioGroup
-              row
-              aria-label="privacy"
-              name="privacy"
-              value={value}
-              onChange={handleChange}
-            >
-              <FormControlLabel value="public" control={<Radio />} label="Public" />
-              <FormControlLabel value="private" control={<Radio />} label="Private" />
-            </RadioGroup>
-          </FormControl>
+          <Box sx={{ width: '80%', display: 'flex', flexDirection: 'column', mt: '3rem' }}>
+            <TextField
+              id="outlined-basic"
+              label="Name"
+              variant="outlined"
+              sx={TextFieldStyle}
+              InputLabelProps={{ style: { color: bgGrayColorLight } }}
+              value={enteredName}
+              onChange={handleNameChange}
+            />
+            <FormControl sx={{ mt: '1rem' }}>
+              <FormLabel sx={{ color: '#fff' }}>Privacy</FormLabel>
+              <RadioGroup
+                row
+                aria-label="privacy"
+                name="privacy"
+                value={value}
+                onChange={handleChange}
+              >
+                <FormControlLabel value="public" control={<Radio />} label="Public" />
+                <FormControlLabel value="private" control={<Radio />} label="Private" />
+              </RadioGroup>
+            </FormControl>
           </Box>
           <Button
             variant="contained"
             sx={{
               backgroundColor: bgGrayColorLight,
-              color: '#fff',
+              color: '#fff'
             }}
-            onClick={async() => {
+            onClick={async () => {
               setOpen(false);
               const data = canvas.toDataURL('image/png');
-              const res = await createCloud({ name: enteredName, data, isPublic: value === 'public' });
+              const res = await createCloud({
+                name: enteredName,
+                data,
+                isPublic: value === 'public'
+              });
               if (value === 'public') {
                 createPublic(res._id);
               }

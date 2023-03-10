@@ -1,8 +1,8 @@
 import * as api from '../api';
 
-export const getCloud = async () => {
+export const getCloud = async (page) => {
   try {
-    const { data } = await api.fetchImages();
+    const { data } = await api.fetchImages(page);
     return data;
   } catch (error) {
     console.log(error.message);

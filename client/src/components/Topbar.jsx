@@ -3,8 +3,8 @@ import { Stack, Paper, Divider, Button, Menu, MenuItem, Typography } from '@mui/
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { logoNoBg } from '../assets/index';
-import { useStateContext } from '../context/ContextProvider'
-import { SaveToCloudPopup } from '../components/'
+import { useStateContext } from '../context/ContextProvider';
+import { SaveToCloudPopup } from '../components/';
 import {
   handleTopBarFile,
   handleTopBarView,
@@ -31,7 +31,7 @@ const Topbar = () => {
 
   const handleMenuClick = (el, menuType) => {
     if (menuType === 'File') {
-      if(el === 'Save to cloud'){
+      if (el === 'Save to cloud') {
         setIsCloudSaving(true);
       }
       handleTopBarFile(el, canvasState, navigate);

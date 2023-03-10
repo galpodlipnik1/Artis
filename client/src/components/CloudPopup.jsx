@@ -1,22 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Modal, Typography, Button, Grid, CircularProgress } from '@mui/material';
+import { Box, Modal, Typography, Button, Grid, CircularProgress, Pagination } from '@mui/material';
 import { bgGrayColorLight, bgGrayColorDark, sideBarBgColor } from '../constants/colors';
 import { CloudImageCard } from '.';
 import { getCloud } from '../actions/cloud';
 
 const StatusPopup = ({ open, setOpen }) => {
   const [cloudImages, setCloudImages] = useState([]);
-  const [isDeleting, setIsDeleted] = useState(false);
+  const [imagesCount, setImagesCount] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     const fetchCloudImages = async () => {
-      const res = await getCloud();
-      setCloudImages(res);
+      const res = await getCloud(page);
+      setCloudImages(res.cloudImages);
+      setImagesCount(res.countCloudImages);
       setIsLoaded(true);
     };
     fetchCloudImages();
-  }, []);
+  }, [page]);
+
+  const handleChange = (event, value) => {
+    setPage(value);
+  };
+
+  useEffect(() => {
+    setIsLoaded(false);
+  }, [page]);
 
   return (
     <Modal
@@ -46,22 +57,33 @@ const StatusPopup = ({ open, setOpen }) => {
         <Box
           sx={{
             width: '100%',
-            height: '60px',
+            height: '70px',
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
             backgroundColor: bgGrayColorDark,
-            borderRadius: '30px',
+            borderTopLeftRadius: '30px',
+            borderTopRightRadius: '30px',
             my: '.5rem'
           }}
         >
           <Typography variant="h6" sx={{ color: bgGrayColorLight, fontWeight: 'bold', ml: '30px' }}>
             Cloud Images
           </Typography>
-          <Button variant="contained" sx={{ mr: '1rem' }}>
-            Delete
-          </Button>
+          {isDeleting && (
+            <Typography variant="h6" sx={{ color:'red', fontWeight: 'bold', mr: '30px' }}>
+              Deleting...
+            </Typography>
+          )}
+          <Box>
+            <Button variant="contained" sx={{ mr: '1rem', borderRadius:'50px' }} onClick={() => setOpen(false)}>
+              Back
+            </Button>
+            <Button variant="contained" sx={{ mr: '1rem', borderRadius:'50px' }} onClick={() => setIsDeleting(!isDeleting)}>
+              Delete
+            </Button>
+          </Box>
         </Box>
         <Box
           sx={{
@@ -72,7 +94,8 @@ const StatusPopup = ({ open, setOpen }) => {
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: bgGrayColorDark,
-            borderRadius: '30px'
+            borderBottomLeftRadius: '30px',
+            borderBottomRightRadius: '30px'
           }}
         >
           <Box sx={{ width: '100%', height: '100%', flexGrow: 1, p: 4 }}>
@@ -83,8 +106,8 @@ const StatusPopup = ({ open, setOpen }) => {
                     <Grid
                       item
                       xs={12}
-                      sm={6}
-                      md={4}
+                      sm={2}
+                      md={2}
                       lg={3}
                       key={cloudImage._id}
                       sx={{ marginBottom: '20px' }}
@@ -93,10 +116,28 @@ const StatusPopup = ({ open, setOpen }) => {
                         cloudImage={cloudImage}
                         isDeleting={isDeleting}
                         setCloudImages={setCloudImages}
+                        setIsDeleting={setIsDeleting}
                       />
                     </Grid>
                   ))}
                 </Grid>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    bgColor: bgGrayColorLight,
+                    width: '100%',
+                    height: '100%'
+                  }}
+                >
+                  <Pagination
+                    count={Math.ceil(imagesCount / 8)}
+                    page={page}
+                    onChange={handleChange}
+                    color="secondary"
+                  />
+                </Box>
               </Box>
             ) : (
               <Box
@@ -112,29 +153,6 @@ const StatusPopup = ({ open, setOpen }) => {
               </Box>
             )}
           </Box>
-        </Box>
-        <Box
-          sx={{
-            width: '100%',
-            height: '60px',
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: bgGrayColorDark,
-            borderRadius: '30px',
-            my: '.5rem'
-          }}
-        >
-          <Button
-            variant="contained"
-            sx={{ marginLeft: '1rem' }}
-            onClick={() => {
-              setOpen(false);
-            }}
-          >
-            Close
-          </Button>
         </Box>
       </Box>
     </Modal>

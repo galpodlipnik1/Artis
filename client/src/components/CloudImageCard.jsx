@@ -3,13 +3,21 @@ import { Box, Card, CardContent, CardMedia, Typography, ButtonBase, Divider } fr
 import { useStateContext } from '../context/ContextProvider';
 import { useNavigate } from 'react-router-dom';
 import { bgGrayColorDark, bgGrayColorLight } from '../constants/colors';
-import { deletePreset } from '../actions/presets';
+import { deleteCloud } from '../actions/cloud';
+import { deletePublicImage } from '../actions/public';
 
-const CardComponent = ({ cloudImage }) => {
+const CardComponent = ({ cloudImage, setCloudImages, isDeleting, setIsDeleting }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate('/edit/image', { state: { imageData: cloudImage.image } });
+    if(!isDeleting) {
+      navigate('/edit/image', { state: { imageData: cloudImage.image } });
+    } else {
+      deletePublicImage(cloudImage._id);
+      deleteCloud(cloudImage._id);
+      setCloudImages((prev) => prev.filter((image) => image._id !== cloudImage._id));
+      setIsDeleting(false);
+    }
   };
   return (
     <Card sx={{ maxWidth: 300, backgroundColor: bgGrayColorDark, borderRadius: '50px' }} raised>
