@@ -10,6 +10,7 @@ import userRoutes from './routes/users.js';
 import statusRoutes from './routes/status.js';
 import dimensionsRoutes from './routes/dimensions.js';
 import cloudRoutes from './routes/cloud.js';
+import publicRoutes from './routes/public.js';
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use('/user', userRoutes);
 app.use('/status', statusRoutes);
 app.use('/dimensions', dimensionsRoutes);
 app.use('/cloud', cloudRoutes);
+app.use('/public', publicRoutes);
 
 app.get('/', (req, res) => {
   const messageJson = {

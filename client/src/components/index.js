@@ -7,6 +7,8 @@ import CardComponent from './CardComponent';
 import StatusPopup from './StatusPopup';
 import CloudPopup from './CloudPopup';
 import CloudImageCard from './CloudImageCard';
+import PublicImageCard from './PublicImageCard';
+import SaveToCloudPopup from './SaveToCloudPopup';
 
 export {
   Topbar,
@@ -17,5 +19,7 @@ export {
   CardComponent,
   StatusPopup,
   CloudPopup,
-  CloudImageCard
+  CloudImageCard,
+  PublicImageCard,
+  SaveToCloudPopup
 };

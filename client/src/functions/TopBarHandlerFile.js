@@ -8,9 +8,6 @@ export const handleTopBarFile = (name, canvasState, navigate) => {
     case 'Open':
       handleOpen(navigate);
       break;
-    case 'Save to cloud':
-      handleSaveToCloud(canvasState);
-      break;
     case 'Save File':
       handleSaveFile(canvasState);
       break;
@@ -49,12 +46,6 @@ const handleOpen = (navigate) => {
     }
   };
   input.click();
-};
-
-const handleSaveToCloud = async (canvasState) => {
-  const data = canvasState.toDataURL();
-  const name = prompt('Enter image name');
-  const res = await createCloud({ name, data });
 };
 
 const handleSaveFile = (canvasState) => {

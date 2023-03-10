@@ -15,6 +15,10 @@ const cloud = mongoose.Schema({
     type: String,
     required: true
   },
+  isPublic: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now

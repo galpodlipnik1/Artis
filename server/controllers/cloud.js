@@ -14,14 +14,15 @@ export const getCloudImages = async (req, res) => {
 
 export const createCloudImage = async (req, res) => {
   try {
-    const { name, data, } = req.body;
+    const { name, data, isPublic } = req.body;
 
-    const newCloudImage = cloudModel.create({
+    const newCloudImage = await cloudModel.create({
       name,
       image: data,
       owner: req.userId,
+      isPublic
     });
-
+    
     console.log(chalk.green.bold(`[${new Date().toLocaleString()}] POST /cloud/`));
     res.status(201).json(newCloudImage);
   } catch (error) {

@@ -3,7 +3,8 @@ import { Stack, Paper, Divider, Button, Menu, MenuItem, Typography } from '@mui/
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { logoNoBg } from '../assets/index';
-import { useStateContext } from '../context/ContextProvider';
+import { useStateContext } from '../context/ContextProvider'
+import { SaveToCloudPopup } from '../components/'
 import {
   handleTopBarFile,
   handleTopBarView,
@@ -14,6 +15,7 @@ import {
 const Topbar = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [isCloudSaving, setIsCloudSaving] = useState(false);
   const { dimensions, mousePos, zoom, canvasState, setStatusBar, statusBar } = useStateContext();
 
   const handleClick = (event) => {
@@ -29,6 +31,9 @@ const Topbar = () => {
 
   const handleMenuClick = (el, menuType) => {
     if (menuType === 'File') {
+      if(el === 'Save to cloud'){
+        setIsCloudSaving(true);
+      }
       handleTopBarFile(el, canvasState, navigate);
     } else if (menuType === 'View') {
       handleTopBarView(el, setStatusBar, statusBar);
@@ -237,6 +242,7 @@ const Topbar = () => {
         </Typography>
         <Divider orientation="vertical" flexItem sx={{ backgroundColor: '#fff' }} />
       </Stack>
+      <SaveToCloudPopup open={isCloudSaving} setOpen={setIsCloudSaving} canvas={canvasState} />
     </Paper>
   );
 };

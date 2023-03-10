@@ -18,10 +18,6 @@ const StatusPopup = ({ open, setOpen }) => {
     fetchCloudImages();
   }, []);
 
-  useEffect(() => {
-    console.log(cloudImages);
-  }, [cloudImages]);
-
   return (
     <Modal
       open={open}

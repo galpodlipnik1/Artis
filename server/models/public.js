@@ -1,12 +1,19 @@
 import mongoose from 'mongoose';
 
-const feedbackSchema = mongoose.Schema({
+const publicSchema = mongoose.Schema({
   name: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'cloud',
     required: true
   },
-  imageData: {
-    type: String,
+  image: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'cloud',
+    required: true
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'cloud',
     required: true
   },
   likes: {
@@ -19,4 +26,4 @@ const feedbackSchema = mongoose.Schema({
   }
 });
 
-export default mongoose.model('Feedback', feedbackSchema);
+export default mongoose.model('public', publicSchema);
