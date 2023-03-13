@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Stack, Paper, Divider, IconButton, Tooltip } from '@mui/material';
+import { Stack, Paper, Divider, IconButton, Tooltip, Menu, MenuItem, Slider, Typography, Button } from '@mui/material';
 import { BsFillBrushFill, BsEraserFill } from 'react-icons/bs';
 import { BiText, BiCrop } from 'react-icons/bi';
 import { MdLensBlur, MdInvertColors } from 'react-icons/md';
@@ -10,6 +10,9 @@ import { AiOutlineUndo } from 'react-icons/ai';
 import { Box } from '@mui/system';
 import { colorPicker } from '../functions/colorPicker';
 import { useStateContext } from '../context/ContextProvider';
+import { handleMouseDown } from '../functions/brush';
+import { handleMouseDownErasor } from '../functions/erasor';
+import { bgGrayColorLight, bgGrayColorDark, sideBarBgColor } from '../constants/colors';
 
 import {
   blurFilter,
@@ -25,15 +28,41 @@ const Sidebar = () => {
   const [originalData, setOriginalData] = useState(null);
   const [currentImageData, setCurrentImageData] = useState(null);
   const [selectedTool, setSelectedTool] = useState('select');
+  const [brushSettings, setBrushSettings] = useState({ color: '#000000', size: 10 });
+  const [anchorEl, setAnchorEl] = useState(null);
+  const BrushOpen = Boolean(anchorEl);
+  const EraserOpen = Boolean(anchorEl);
 
-  //make a use effect that gets called when u click on the canvas
   useEffect(() => {
-    if (!canvasState) return;
-    canvasState.addEventListener('click', handleCanvasClick);
-    return () => {
-      canvasState.removeEventListener('click', handleCanvasClick);
+    
+    if(selectedTool === 'brush') {
+      canvasState.addEventListener('mousedown', (e) => handleMouseDown(e, canvasState, brushSettings, selectedTool)); 
+    } else if (selectedTool === 'eraser') {
+      canvasState.addEventListener('mousedown', (e) => handleMouseDownErasor(e, canvasState, brushSettings, selectedTool));
     };
-  }, [canvasState]);
+
+    return () => {
+      if(selectedTool === 'brush') {
+        canvasState.removeEventListener('mousedown', (e) => handleMouseDown(e, canvasState, brushSettings, selectedTool));
+      }
+    }
+  }, [selectedTool, brushSettings]);
+
+  const handleBrushSettings = (e, type) => {
+    if (type === 'color') {
+      setBrushSettings({ ...brushSettings, color: e.target.value });
+    } else if (type === 'brush') {
+      setBrushSettings({ ...brushSettings, size: e.target.value });
+    }
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  }
+
+  const handleClick = (e) => {
+    setAnchorEl(e.currentTarget);
+  }
 
   const handleCanvasClick = () => {
     const color = colorPicker(mousePos.x, mousePos.y, canvasState);
@@ -214,6 +243,11 @@ const Sidebar = () => {
           </Tooltip>
           <Tooltip title="Brush" placement="right" onClick={() => setSelectedTool('brush')}>
             <IconButton
+              id='brush'
+              aria-controls={BrushOpen ? 'brush-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={BrushOpen ? true : undefined}
+              onClick={handleClick}
               variant="contained"
               size="small"
               sx={
@@ -225,8 +259,39 @@ const Sidebar = () => {
               {<BsFillBrushFill />}{' '}
             </IconButton>
           </Tooltip>
+          <Menu
+            id="brush-menu"
+            open={BrushOpen}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            onClick={() => setSelectedTool('brush')}
+            MenuListProps={{
+              'area-labelledby': 'brush',
+            }}
+          >
+            <MenuItem sx={{ width:'300px', p:'1rem', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr:'1rem' }}>
+                Brush Size:
+              </Typography>
+              <Slider size="small" defaultValue={1} aria-label="Small" valueLabelDisplay="auto" value={brushSettings.size} onChange={(e) => handleBrushSettings(e, 'brush')} min={1} max={100} />
+            </MenuItem>
+            <MenuItem sx={{ width:'300px', p:'1rem', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr:'1rem' }}>
+                Brush Color:
+              </Typography>
+              <input type="color" id="myColorPicker" value={brushSettings.color} onChange={(e) => handleBrushSettings(e, 'color')} />
+            </MenuItem>
+            <MenuItem sx={{ width:'300px', p:'1rem', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <Button variant="contained" size="small" sx={{ backgroundColor: '#000059', color: '#fff', mr:'1rem' }} onClick={handleClose}>Save</Button>
+            </MenuItem>
+          </Menu>
           <Tooltip title="Eraser" placement="right" onClick={() => setSelectedTool('eraser')}>
             <IconButton
+              id='eraser'
+              aria-controls={EraserOpen ? 'eraser-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={EraserOpen ? true : undefined}
+              onClick={handleClick}
               variant="contained"
               size="small"
               sx={
@@ -237,6 +302,26 @@ const Sidebar = () => {
             >
               {<BsEraserFill />}{' '}
             </IconButton>
+            <Menu
+            id="eraser-menu"
+            open={BrushOpen}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            onClick={() => setSelectedTool('eraser')}
+            MenuListProps={{
+              'area-labelledby': 'eraser',
+            }}
+          >
+            <MenuItem sx={{ width:'300px', p:'1rem', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr:'1rem' }}>
+                Eraser Size:
+              </Typography>
+              <Slider size="small" defaultValue={1} aria-label="Small" valueLabelDisplay="auto" value={brushSettings.size} onChange={(e) => handleEraserSettings(e, 'brush')} min={1} max={100} />
+            </MenuItem>
+            <MenuItem sx={{ width:'300px', p:'1rem', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <Button variant="contained" size="small" sx={{ backgroundColor: '#000059', color: '#fff', mr:'1rem' }} onClick={handleClose}>Save</Button>
+            </MenuItem>
+          </Menu>
           </Tooltip>
           <Tooltip title="Crop" placement="right" onClick={() => setSelectedTool('crop')}>
             <IconButton

@@ -10,29 +10,41 @@ import {
   About,
   Unauthentificated
 } from './pages';
+import { useStateContext } from './context/ContextProvider';
 import { HashRouter, Routes as Switch, Route } from 'react-router-dom';
 
 const App = () => {
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('profile')));
+  const { user, setUser } = useStateContext();
+  const [userLocal, setUserLocal] = useState(JSON.parse(localStorage.getItem('profile')));
+  const [stateUser, setStateUser] = useState(user);
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('profile'));
 
     if (user) {
-      setUser(user);
+      setUserLocal(user);
+      setStateUser(user);
     }
   }, [localStorage.getItem('profile')]);
+
+  useEffect(() => {
+    if (user) {
+      setStateUser(user);
+    }
+  }, [user, userLocal]);
+
+
 
   return (
     <HashRouter>
       <Switch>
         <Route path="/" element={<Auth />} />
         <Route path="/loading" element={<LoadingPage />} />
-        <Route path="/edit/:type" element={user ? <Editor /> : <Unauthentificated />} />
-        <Route path="/menu" element={user ? <Menu /> : <Unauthentificated />} />
-        <Route path="/account" element={user ? <Account /> : <Unauthentificated />} />
-        <Route path="/dimensions" element={user ? <Dimensions /> : <Unauthentificated />} />
-        <Route path="/public" element={user ? <Public /> : <Unauthentificated />} />
-        <Route path="/about" element={user ? <About /> : <Unauthentificated />} />
+        <Route path="/edit/:type" element={user || userLocal ? <Editor /> : <Unauthentificated />} />
+        <Route path="/menu" element={user || userLocal ? <Menu /> : <Unauthentificated />} />
+        <Route path="/account" element={user || userLocal ? <Account /> : <Unauthentificated />} />
+        <Route path="/dimensions" element={user || userLocal ? <Dimensions /> : <Unauthentificated />} />
+        <Route path="/public" element={user || userLocal ? <Public /> : <Unauthentificated />} />
+        <Route path="/about" element={user || userLocal ? <About /> : <Unauthentificated />} />
       </Switch>
     </HashRouter>
   );
