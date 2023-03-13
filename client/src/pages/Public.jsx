@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Typography, Grid, Paper, Pagination, Avatar, CircularProgress } from '@mui/material';
+import {
+  Box,
+  Button,
+  Typography,
+  Grid,
+  Paper,
+  Pagination,
+  Avatar,
+  CircularProgress
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { bgGrayColorLight, bgGrayColorDark, sideBarBgColor } from '../constants/colors';
 import { useStateContext } from '../context/ContextProvider';
@@ -30,7 +39,16 @@ const Public = () => {
   }, [page]);
 
   return (
-    <Box sx={{ width: '100wh', height: '100vh', display: 'flex', flexDirection: 'column', justifyContent:'center', alignItems:'center' }}>
+    <Box
+      sx={{
+        width: '100wh',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}
+    >
       <Box
         sx={{
           width: '100%',
@@ -89,26 +107,34 @@ const Public = () => {
         }}
       >
         {!isLoading ? (
-        <Grid
-          container
-          spacing={2}
-          sx={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            justifyContent: 'flex-start',
-            mr: '1rem',
-            alignItems: 'flex-start'
-          }}
-        >
-          {images.map((image, index) => (
-            <Grid item xs={12} sm={3} md={3} lg={3} key={index}>
-              <PublicImageCard image={image} />
-            </Grid>
-          ))}
-        </Grid>
+          <Grid
+            container
+            spacing={2}
+            sx={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              justifyContent: 'flex-start',
+              mr: '1rem',
+              alignItems: 'flex-start'
+            }}
+          >
+            {images.map((image, index) => (
+              <Grid item xs={12} sm={3} md={3} lg={3} key={index}>
+                <PublicImageCard image={image} />
+              </Grid>
+            ))}
+          </Grid>
         ) : (
-          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', mb:'37%' }}>
+          <Box
+            sx={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              mb: '37%'
+            }}
+          >
             <CircularProgress />
           </Box>
         )}
@@ -118,7 +144,7 @@ const Public = () => {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            mt: '1rem',
+            mt: '1rem'
           }}
         >
           <Pagination

@@ -33,4 +33,4 @@ export const deletePublicImage = async (id) => {
   } catch (error) {
     console.log(error);
   }
-}
+};

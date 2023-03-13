@@ -72,15 +72,23 @@ const StatusPopup = ({ open, setOpen }) => {
             Cloud Images
           </Typography>
           {isDeleting && (
-            <Typography variant="h6" sx={{ color:'red', fontWeight: 'bold', mr: '30px' }}>
+            <Typography variant="h6" sx={{ color: 'red', fontWeight: 'bold', mr: '30px' }}>
               Deleting...
             </Typography>
           )}
           <Box>
-            <Button variant="contained" sx={{ mr: '1rem', borderRadius:'50px' }} onClick={() => setOpen(false)}>
+            <Button
+              variant="contained"
+              sx={{ mr: '1rem', borderRadius: '50px' }}
+              onClick={() => setOpen(false)}
+            >
               Back
             </Button>
-            <Button variant="contained" sx={{ mr: '1rem', borderRadius:'50px' }} onClick={() => setIsDeleting(!isDeleting)}>
+            <Button
+              variant="contained"
+              sx={{ mr: '1rem', borderRadius: '50px' }}
+              onClick={() => setIsDeleting(!isDeleting)}
+            >
               Delete
             </Button>
           </Box>

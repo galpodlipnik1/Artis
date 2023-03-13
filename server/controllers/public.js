@@ -17,7 +17,14 @@ export const getPublicImages = async (req, res) => {
       publicImages.map(async (publicImage) => {
         const res = await CloudModel.findById(publicImage.image);
         const { name, image, owner } = res;
-        return { name, image, owner, createdAt: publicImage.createdAt, likes: publicImage.likes, id: publicImage._id };
+        return {
+          name,
+          image,
+          owner,
+          createdAt: publicImage.createdAt,
+          likes: publicImage.likes,
+          id: publicImage._id
+        };
       })
     );
 
@@ -61,11 +68,9 @@ export const createPublicImage = async (req, res) => {
   }
 };
 
-
 export const updatePublicImage = async (req, res) => {
   const { likes } = req.body;
   const { id } = req.params;
-
 
   try {
     const updatedPublicImage = await PublicModel.findByIdAndUpdate(id, { likes }, { new: true });
@@ -110,5 +115,5 @@ export const deletePublicImage = async (req, res) => {
       chalk.red(`[FAILED]`)
     );
     res.status(500).json({ message: error.message });
-  } 
+  }
 };

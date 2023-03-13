@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Card, CardContent, CardMedia, Typography, ButtonBase, Divider, IconButton } from '@mui/material';
+import {
+  Box,
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+  ButtonBase,
+  Divider,
+  IconButton
+} from '@mui/material';
 import { useStateContext } from '../context/ContextProvider';
 import { useNavigate } from 'react-router-dom';
 import { bgGrayColorDark, bgGrayColorLight } from '../constants/colors';
@@ -18,8 +27,8 @@ const PublicImageCard = ({ image }) => {
     }
   }, [user, image, newLikes]);
 
-  const handleClick = async() => {
-    const userId = user.user._id
+  const handleClick = async () => {
+    const userId = user.user._id;
 
     const isInLiked = newLikes.includes(userId);
     setIsInLiked(isInLiked);
@@ -52,37 +61,27 @@ const PublicImageCard = ({ image }) => {
   return (
     <Card sx={{ maxWidth: 300, backgroundColor: bgGrayColorDark, borderRadius: '50px' }} raised>
       <CardMedia component="img" height="140" image={image.image} alt={image.name} />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width:'100%' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
         <CardContent sx={{ width: '100%' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography
-            gutterBottom
-            variant="h5"
-            component="div"
-            sx={{ color: bgGrayColorLight, fontWeight: 'bold' }}
-          >
-            {image.name}
-          </Typography>
-          <IconButton
-            variant="contained"
-            size="small"
-            sx={buttonStyle}
-            onClick={handleDownload}
-          >
-            <BsCloudDownload color="white" />
-          </IconButton>
+            <Typography
+              gutterBottom
+              variant="h5"
+              component="div"
+              sx={{ color: bgGrayColorLight, fontWeight: 'bold' }}
+            >
+              {image.name}
+            </Typography>
+            <IconButton variant="contained" size="small" sx={buttonStyle} onClick={handleDownload}>
+              <BsCloudDownload color="white" />
+            </IconButton>
           </Box>
           <Divider sx={{ backgroundColor: bgGrayColorLight, marginBottom: '5px' }} />
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <IconButton
-              variant="contained"
-              size="small"
-              sx={buttonStyle}
-              onClick={handleClick}
-            >
+            <IconButton variant="contained" size="small" sx={buttonStyle} onClick={handleClick}>
               <AiFillLike color={isInLiked ? 'red' : 'white'} />
             </IconButton>
-            <Typography variant="body1" sx={{ color: bgGrayColorLight, fontWeight:'bold' }}>
+            <Typography variant="body1" sx={{ color: bgGrayColorLight, fontWeight: 'bold' }}>
               {newLikes.length}
             </Typography>
           </Box>

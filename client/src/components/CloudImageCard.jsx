@@ -10,7 +10,7 @@ const CardComponent = ({ cloudImage, setCloudImages, isDeleting, setIsDeleting }
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if(!isDeleting) {
+    if (!isDeleting) {
       navigate('/edit/image', { state: { imageData: cloudImage.image } });
     } else {
       deletePublicImage(cloudImage._id);

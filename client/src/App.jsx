@@ -32,17 +32,21 @@ const App = () => {
     }
   }, [user, userLocal]);
 
-
-
   return (
     <HashRouter>
       <Switch>
         <Route path="/" element={<Auth />} />
         <Route path="/loading" element={<LoadingPage />} />
-        <Route path="/edit/:type" element={user || userLocal ? <Editor /> : <Unauthentificated />} />
+        <Route
+          path="/edit/:type"
+          element={user || userLocal ? <Editor /> : <Unauthentificated />}
+        />
         <Route path="/menu" element={user || userLocal ? <Menu /> : <Unauthentificated />} />
         <Route path="/account" element={user || userLocal ? <Account /> : <Unauthentificated />} />
-        <Route path="/dimensions" element={user || userLocal ? <Dimensions /> : <Unauthentificated />} />
+        <Route
+          path="/dimensions"
+          element={user || userLocal ? <Dimensions /> : <Unauthentificated />}
+        />
         <Route path="/public" element={user || userLocal ? <Public /> : <Unauthentificated />} />
         <Route path="/about" element={user || userLocal ? <About /> : <Unauthentificated />} />
       </Switch>

@@ -23,8 +23,8 @@ export const deleteImage = (id) => API.delete(`/cloud/${id}`);
 
 export const fetchPublicImages = (page) => API.get(`/public/${page}`);
 export const createPublicImage = (cloudImageId) => API.post('/public', { cloudImageId });
-export const updatePublicImage = (id, newLikes) => API.put(`/public/${id}`, {likes: newLikes});
-export const deletePublicImage = (cloudId) => API.delete(`/public/${cloudId }`);
+export const updatePublicImage = (id, newLikes) => API.put(`/public/${id}`, { likes: newLikes });
+export const deletePublicImage = (cloudId) => API.delete(`/public/${cloudId}`);
 
 export const dbStatus = () => API.get('/status/db');
 export const serverStatus = () => API.get('/status/server');

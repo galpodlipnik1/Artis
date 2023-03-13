@@ -1,5 +1,10 @@
 import express from 'express';
-import { getPublicImages, createPublicImage, updatePublicImage, deletePublicImage } from '../controllers/public.js';
+import {
+  getPublicImages,
+  createPublicImage,
+  updatePublicImage,
+  deletePublicImage
+} from '../controllers/public.js';
 
 import auth from '../middleware/auth.js';
 

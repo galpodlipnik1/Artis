@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Stack, Paper, Divider, IconButton, Tooltip, Menu, MenuItem, Slider, Typography, Button } from '@mui/material';
+import {
+  Stack,
+  Paper,
+  Divider,
+  IconButton,
+  Tooltip,
+  Menu,
+  MenuItem,
+  Slider,
+  Typography,
+  Button
+} from '@mui/material';
 import { BsFillBrushFill, BsEraserFill } from 'react-icons/bs';
 import { BiText, BiCrop } from 'react-icons/bi';
 import { MdLensBlur, MdInvertColors } from 'react-icons/md';
@@ -8,11 +19,11 @@ import { GiAlienFire, GiLevelTwo, GiArrowCursor } from 'react-icons/gi';
 import { CgEditNoise, CgColorPicker } from 'react-icons/cg';
 import { AiOutlineUndo } from 'react-icons/ai';
 import { Box } from '@mui/system';
-import { colorPicker } from '../functions/colorPicker';
 import { useStateContext } from '../context/ContextProvider';
 import { handleMouseDown } from '../functions/brush';
 import { handleMouseDownErasor } from '../functions/erasor';
-import { bgGrayColorLight, bgGrayColorDark, sideBarBgColor } from '../constants/colors';
+import { crop } from '../functions/crop';
+
 
 import {
   blurFilter,
@@ -29,24 +40,66 @@ const Sidebar = () => {
   const [currentImageData, setCurrentImageData] = useState(null);
   const [selectedTool, setSelectedTool] = useState('select');
   const [brushSettings, setBrushSettings] = useState({ color: '#000000', size: 10 });
+  const [erasorSettings, setEraserSettings] = useState({ size: 10 });
+  const [cropSettings, setCropSettings] = useState({ top: 0, left: 0, bottom: 0, right: 0 });
   const [anchorEl, setAnchorEl] = useState(null);
-  const BrushOpen = Boolean(anchorEl);
-  const EraserOpen = Boolean(anchorEl);
+  const BrushOpen = Boolean(anchorEl && anchorEl.id === 'brush');
+  const EraserOpen = Boolean(anchorEl && anchorEl.id === 'eraser');
+  const CropOpen = Boolean(anchorEl && anchorEl.id === 'crop');
+  const [hasSavedCrop, setHasSavedCrop] = useState(false);
+  const [hasColorBeenPicked, setHasColorBeenPicked] = useState(false);
+  const [pickedColor, setPickedColor] = useState(null);
+
 
   useEffect(() => {
-    
-    if(selectedTool === 'brush') {
-      canvasState.addEventListener('mousedown', (e) => handleMouseDown(e, canvasState, brushSettings, selectedTool)); 
+    console.log(hasColorBeenPicked);
+  }, [hasColorBeenPicked]);
+  useEffect(() => {
+    if (selectedTool === 'brush') {
+      canvasState.addEventListener('mousedown', (e) =>
+      handleMouseDown(e, canvasState, brushSettings)
+      );
     } else if (selectedTool === 'eraser') {
-      canvasState.addEventListener('mousedown', (e) => handleMouseDownErasor(e, canvasState, brushSettings, selectedTool));
+      canvasState.addEventListener('mousedown', (e) =>
+        handleMouseDownErasor(e, canvasState, erasorSettings)
+      );
+    } else if (selectedTool === 'crop') {
+      if(hasSavedCrop)
+        crop(canvasState, cropSettings);
+      setHasSavedCrop(false);
+    } else if (selectedTool === 'color') {
+      canvasState.addEventListener('mousedown', (e) => {
+        const ctx = canvasState.getContext('2d');
+        const imageData = ctx.getImageData(e.offsetX, e.offsetY, 1, 1);
+        const pixel = imageData.data;
+        const color = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+        setPickedColor(color);
+        setHasColorBeenPicked(true);
+      });
     };
 
     return () => {
-      if(selectedTool === 'brush') {
-        canvasState.removeEventListener('mousedown', (e) => handleMouseDown(e, canvasState, brushSettings, selectedTool));
-      }
-    }
-  }, [selectedTool, brushSettings]);
+      if (selectedTool === 'brush') {
+        canvasState.removeEventListener('mousedown', (e) =>
+          handleMouseDown(e, canvasState, brushSettings, selectedTool)
+        );
+      } else if (selectedTool === 'eraser') {
+        canvasState.removeEventListener('mousedown', (e) =>
+          handleMouseDownErasor(e, canvasState, erasorSettings)
+        );
+      } else if (selectedTool === 'color') {
+        canvasState.removeEventListener('mousedown', (e) => {
+          const ctx = canvasState.getContext('2d');
+          const imageData = ctx.getImageData(e.offsetX, e.offsetY, 1, 1);
+          const pixel = imageData.data;
+          const color = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+          setBrushSettings({ ...brushSettings, color });
+          setHasColorBeenPicked(true);
+        });
+      };
+
+    };
+  }, [selectedTool, brushSettings, erasorSettings, hasSavedCrop, hasColorBeenPicked]);
 
   const handleBrushSettings = (e, type) => {
     if (type === 'color') {
@@ -56,17 +109,20 @@ const Sidebar = () => {
     }
   };
 
+  const handleEraserSettings = (e) => {
+    setEraserSettings({ ...erasorSettings, size: e.target.value });
+  };
+
+  const handleCropSettings = (e) => {
+    setCropSettings({ ...cropSettings, [e.target.name]: e.target.value });
+  };
+
   const handleClose = () => {
     setAnchorEl(null);
-  }
+  };
 
   const handleClick = (e) => {
     setAnchorEl(e.currentTarget);
-  }
-
-  const handleCanvasClick = () => {
-    const color = colorPicker(mousePos.x, mousePos.y, canvasState);
-    console.log(color);
   };
 
   const handleRevert = () => {
@@ -243,11 +299,11 @@ const Sidebar = () => {
           </Tooltip>
           <Tooltip title="Brush" placement="right" onClick={() => setSelectedTool('brush')}>
             <IconButton
-              id='brush'
+              id="brush"
               aria-controls={BrushOpen ? 'brush-menu' : undefined}
               aria-haspopup="true"
               aria-expanded={BrushOpen ? true : undefined}
-              onClick={handleClick}
+              onClick={(e) => { handleClick(e); setSelectedTool('brush') }}
               variant="contained"
               size="small"
               sx={
@@ -266,28 +322,73 @@ const Sidebar = () => {
             onClose={handleClose}
             onClick={() => setSelectedTool('brush')}
             MenuListProps={{
-              'area-labelledby': 'brush',
+              'area-labelledby': 'brush'
             }}
           >
-            <MenuItem sx={{ width:'300px', p:'1rem', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr:'1rem' }}>
+            <MenuItem
+              sx={{
+                width: '300px',
+                p: '1rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr: '1rem' }}>
                 Brush Size:
               </Typography>
-              <Slider size="small" defaultValue={1} aria-label="Small" valueLabelDisplay="auto" value={brushSettings.size} onChange={(e) => handleBrushSettings(e, 'brush')} min={1} max={100} />
+              <Slider
+                size="small"
+                defaultValue={1}
+                aria-label="Small"
+                valueLabelDisplay="auto"
+                value={brushSettings.size}
+                onChange={(e) => handleBrushSettings(e, 'brush')}
+                min={1}
+                max={100}
+              />
             </MenuItem>
-            <MenuItem sx={{ width:'300px', p:'1rem', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr:'1rem' }}>
+            <MenuItem
+              sx={{
+                width: '300px',
+                p: '1rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr: '1rem' }}>
                 Brush Color:
               </Typography>
-              <input type="color" id="myColorPicker" value={brushSettings.color} onChange={(e) => handleBrushSettings(e, 'color')} />
+              <input
+                type="color"
+                id="myColorPicker"
+                value={brushSettings.color}
+                onChange={(e) => handleBrushSettings(e, 'color')}
+              />
             </MenuItem>
-            <MenuItem sx={{ width:'300px', p:'1rem', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <Button variant="contained" size="small" sx={{ backgroundColor: '#000059', color: '#fff', mr:'1rem' }} onClick={handleClose}>Save</Button>
+            <MenuItem
+              sx={{
+                width: '300px',
+                p: '1rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <Button
+                variant="contained"
+                size="small"
+                sx={{ backgroundColor: '#000059', color: '#fff', mr: '1rem' }}
+                onClick={handleClose}
+              >
+                Save
+              </Button>
             </MenuItem>
           </Menu>
           <Tooltip title="Eraser" placement="right" onClick={() => setSelectedTool('eraser')}>
             <IconButton
-              id='eraser'
+              id="eraser"
               aria-controls={EraserOpen ? 'eraser-menu' : undefined}
               aria-haspopup="true"
               aria-expanded={EraserOpen ? true : undefined}
@@ -302,29 +403,66 @@ const Sidebar = () => {
             >
               {<BsEraserFill />}{' '}
             </IconButton>
-            <Menu
-            id="eraser-menu"
-            open={BrushOpen}
-            anchorEl={anchorEl}
-            onClose={handleClose}
-            onClick={() => setSelectedTool('eraser')}
-            MenuListProps={{
-              'area-labelledby': 'eraser',
-            }}
-          >
-            <MenuItem sx={{ width:'300px', p:'1rem', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr:'1rem' }}>
-                Eraser Size:
-              </Typography>
-              <Slider size="small" defaultValue={1} aria-label="Small" valueLabelDisplay="auto" value={brushSettings.size} onChange={(e) => handleEraserSettings(e, 'brush')} min={1} max={100} />
-            </MenuItem>
-            <MenuItem sx={{ width:'300px', p:'1rem', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <Button variant="contained" size="small" sx={{ backgroundColor: '#000059', color: '#fff', mr:'1rem' }} onClick={handleClose}>Save</Button>
-            </MenuItem>
-          </Menu>
           </Tooltip>
+            <Menu
+              id="eraser-menu"
+              open={EraserOpen}
+              anchorEl={anchorEl}
+              onClose={handleClose}
+              onClick={() => setSelectedTool('eraser')}
+              MenuListProps={{
+                'area-labelledby': 'eraser'
+              }}
+            >
+              <MenuItem
+                sx={{
+                  width: '300px',
+                  p: '1rem',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr: '1rem' }}>
+                  Eraser Size:
+                </Typography>
+                <Slider
+                  size="small"
+                  defaultValue={1}
+                  value = {erasorSettings.size}
+                  aria-label="Small"
+                  valueLabelDisplay="auto"
+                  onChange={(e) => handleEraserSettings(e)}
+                  min={1}
+                  max={100}
+                />
+              </MenuItem>
+              <MenuItem
+                sx={{
+                  width: '300px',
+                  p: '1rem',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <Button
+                  variant="contained"
+                  size="small"
+                  sx={{ backgroundColor: '#000059', color: '#fff', mr: '1rem' }}
+                  onClick={(e) => { setHasSavedCrop(true); handleClose(e)}}
+                >
+                  Save
+                </Button>
+              </MenuItem>
+            </Menu>
           <Tooltip title="Crop" placement="right" onClick={() => setSelectedTool('crop')}>
             <IconButton
+              id="crop"
+              aria-controls={CropOpen ? 'crop-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={CropOpen ? true : undefined}
+              onClick={handleClick}
               variant="contained"
               size="small"
               sx={
@@ -336,6 +474,92 @@ const Sidebar = () => {
               {<BiCrop />}{' '}
             </IconButton>
           </Tooltip>
+          <Menu
+            id="crop-menu"
+            open={CropOpen}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            onClick={() => setSelectedTool('crop')}
+            MenuListProps={{
+              'area-labelledby': 'crop'
+            }}
+          >
+            <MenuItem
+              sx={{
+                width: '300px',
+                p: '1rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr: '1rem' }}>
+                Top:
+              </Typography>
+              <input type="number" name="top" value={cropSettings.top} onChange={(e) => handleCropSettings(e)} />
+            </MenuItem>
+            <MenuItem
+              sx={{
+                width: '300px',
+                p: '1rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr: '1rem' }}>
+                Left:
+              </Typography>
+              <input type="number" name="left" value={cropSettings.left} onChange={(e) => handleCropSettings(e)} />
+            </MenuItem>
+            <MenuItem
+
+              sx={{
+                width: '300px',
+                p: '1rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr: '1rem' }}>
+                Right:
+              </Typography>
+              <input type="number" name="right" value={cropSettings.right} onChange={(e) => handleCropSettings(e)} />
+            </MenuItem>
+            <MenuItem
+              sx={{
+                width: '300px',
+                p: '1rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr: '1rem' }}>
+                Bottom:
+              </Typography>
+              <input type="number" name="bottom" value={cropSettings.bottom} onChange={(e) => handleCropSettings(e)} />
+            </MenuItem>
+            <MenuItem
+              sx={{
+                width: '300px',
+                p: '1rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <Button
+                variant="contained"
+                size="small"
+                sx={{ backgroundColor: '#000059', color: '#fff', mr: '1rem' }}
+                onClick={(e) => { setHasSavedCrop(true); handleClose(e)}}
+              >
+                Save
+              </Button>
+            </MenuItem>
+          </Menu>
           <Tooltip title="Text" placement="right" onClick={() => setSelectedTool('text')}>
             <IconButton
               variant="contained"
@@ -351,6 +575,11 @@ const Sidebar = () => {
           </Tooltip>
           <Tooltip title="Color Picker" placement="right" onClick={() => setSelectedTool('color')}>
             <IconButton
+              id="color"
+              aria-controls={hasColorBeenPicked ? 'color-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={hasColorBeenPicked ? true : undefined}
+              onClick={(e) => { setSelectedTool('color'); handleClick(e)}}
               variant="contained"
               size="small"
               sx={
@@ -362,6 +591,59 @@ const Sidebar = () => {
               {<CgColorPicker />}{' '}
             </IconButton>
           </Tooltip>
+          <Menu
+            id="color-menu"
+            open={hasColorBeenPicked}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            onClick={() => setHasColorBeenPicked(false)}
+            MenuListProps={{
+              'area-labelledby': 'color'
+            }}
+          >
+            <MenuItem
+              sx={{
+                width: '300px',
+                p: '1rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr: '1rem' }}>
+                Picked Color: {pickedColor}
+              </Typography>
+            </MenuItem>
+            <MenuItem>
+              <Box
+                sx={{
+                  width:'50px',
+                  height:'50px',
+                  backgroundColor: pickedColor,
+                  borderRadius: '50%',
+                }}
+              >
+              </Box>
+            </MenuItem>
+            <MenuItem
+              sx={{
+                width: '300px',
+                p: '1rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <Button
+                variant="contained"
+                size="small"
+                sx={{ backgroundColor: '#000059', color: '#fff', mr: '1rem' }}
+                onClick={(e) => { setHasColorBeenPicked(false); handleClose(e)}}
+              >
+                Close
+              </Button>
+            </MenuItem>
+          </Menu>
         </Box>
         <Box
           sx={{

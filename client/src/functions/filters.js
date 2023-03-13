@@ -1,14 +1,16 @@
 export const blurFilter = (pixels, width, height) => {
   const kernel = [
-    [1 / 9, 1 / 9, 1 / 9],
-    [1 / 9, 1 / 9, 1 / 9],
-    [1 / 9, 1 / 9, 1 / 9]
+    [1, 2, 1],
+    [2, 4, 2],
+    [1, 2, 1]
   ];
 
   const kernelSize = kernel.length;
   const kernelHalf = Math.floor(kernelSize / 2);
 
   const newData = new Uint8ClampedArray(pixels.length);
+
+  const weightSum = kernel.reduce((sum, row) => sum + row.reduce((acc, curr) => acc + curr, 0), 0);
 
   for (let i = 0; i < pixels.length; i += 4) {
     const row = Math.floor(i / 4 / width);
@@ -32,7 +34,7 @@ export const blurFilter = (pixels, width, height) => {
 
         const index = (rowIndex * width + colIndex) * 4;
 
-        const weight = kernel[kr][kc];
+        const weight = kernel[kr][kc] / weightSum;
 
         r += pixels[index] * weight;
         g += pixels[index + 1] * weight;
@@ -48,6 +50,7 @@ export const blurFilter = (pixels, width, height) => {
 
   return new ImageData(newData, width, height);
 };
+
 
 export const saturationFilter = (pixels, width, height, saturation) => {
   const newData = new Uint8ClampedArray(pixels.length);
