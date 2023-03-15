@@ -11,6 +11,7 @@ export const ContextProvider = ({ children }) => {
   const [zoom, setZoom] = useState(100);
   const [presetsState, setPresetsState] = useState([]);
   const [statusBar, setStatusBar] = useState(false);
+  const [pickedColorState, setPickedColorState] = useState('ni izbrana');
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('profile'));
@@ -44,7 +45,9 @@ export const ContextProvider = ({ children }) => {
         presetsState,
         setPresetsState,
         setStatusBar,
-        statusBar
+        statusBar,
+        pickedColorState,
+        setPickedColorState
       }}
     >
       {children}

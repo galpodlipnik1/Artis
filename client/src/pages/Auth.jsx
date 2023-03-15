@@ -12,6 +12,7 @@ import {
   IconButton,
   Paper
 } from '@mui/material';
+import { runFireworks } from '../functions/firework';
 import { useNavigate } from 'react-router-dom';
 import { signIn, signUp } from '../actions/user';
 import { useStateContext } from '../context/ContextProvider';
@@ -51,10 +52,11 @@ const Auth = () => {
     } else {
       res = await signIn(form);
     }
-
-    if (!res) {
+    if (!res.user) {
       alert('Something went wrong.');
     } else {
+      if (isSignUp) 
+          runFireworks();
       setUser(res);
       localStorage.setItem('profile', JSON.stringify(res));
       navigate('/');
@@ -140,7 +142,7 @@ const Auth = () => {
                     fullWidth
                     sx={{ color: 'white', backgroundColor: bgGrayColorDark }}
                   >
-                    Log In
+                    {isSignUp ? 'Sign Up' : 'Sign In'}
                   </Button>
                 </Grid>
                 <Grid item xs={12} mt="25px">

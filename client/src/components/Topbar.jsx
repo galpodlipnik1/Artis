@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Stack, Paper, Divider, Button, Menu, MenuItem, Typography } from '@mui/material';
+import { Box, Stack, Paper, Divider, Button, Menu, MenuItem, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { logoNoBg } from '../assets/index';
@@ -16,7 +16,8 @@ const Topbar = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const [isCloudSaving, setIsCloudSaving] = useState(false);
-  const { dimensions, mousePos, zoom, canvasState, setStatusBar, statusBar } = useStateContext();
+  const { dimensions, mousePos, zoom, canvasState, setStatusBar, statusBar, pickedColorState } =
+    useStateContext();
 
   const handleClick = (event) => {
     setAnchorEl({
@@ -156,42 +157,6 @@ const Topbar = () => {
         <Button
           variant="contained"
           size="small"
-          id="insert-button"
-          aria-controls="insert-menu"
-          aria-haspopup="true"
-          aria-expanded={anchorEl ? 'true' : undefined}
-          onClick={handleClick}
-          sx={{
-            backgroundColor: '#5d5d5d',
-            color: '#fff',
-            ':hover': { backgroundColor: '#838383' }
-          }}
-        >
-          Format
-        </Button>
-        <Menu
-          id="insert-menu"
-          anchorEl={anchorEl ? anchorEl.el : null}
-          open={Boolean(anchorEl) && anchorEl.controller === 'insert-menu'}
-          onClose={handleClose}
-          MenuListProps={{
-            'aria-labelledby': 'insert-button'
-          }}
-          sx={{
-            '& .MuiMenu-list': {
-              backgroundColor: '#5d5d5d',
-              color: '#fff'
-            }
-          }}
-        >
-          <MenuItem onClick={() => handleMenuClick('Font', 'Format')}>Font</MenuItem>
-          <MenuItem onClick={() => handleMenuClick('Align', 'Format')}>Align</MenuItem>
-          <MenuItem onClick={() => handleMenuClick('Borders', 'Format')}>Borders</MenuItem>
-        </Menu>
-        <Divider orientation="vertical" flexItem sx={{ backgroundColor: '#fff' }} />
-        <Button
-          variant="contained"
-          size="small"
           id="help-button"
           aria-controls="help-menu"
           aria-haspopup="true"
@@ -240,6 +205,26 @@ const Topbar = () => {
         <Typography variant="body" sx={{ marginRight: '5px', fontSize: '12px', color: '#d3d3d3' }}>
           Zoom: {Number(zoom).toFixed(0)}%
         </Typography>
+        <Divider orientation="vertical" flexItem sx={{ backgroundColor: '#fff' }} />
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography
+            variant="body"
+            sx={{ marginRight: '5px', fontSize: '12px', color: '#d3d3d3' }}
+          >
+            Picked color:
+            <b>{pickedColorState}</b>
+          </Typography>
+          {pickedColorState !== 'ni izbrana' && (
+            <Box
+              sx={{
+                width: '20px',
+                height: '20px',
+                backgroundColor: pickedColorState,
+                border: '1px solid #fff'
+              }}
+            />
+          )}
+        </Box>
         <Divider orientation="vertical" flexItem sx={{ backgroundColor: '#fff' }} />
       </Stack>
       <SaveToCloudPopup open={isCloudSaving} setOpen={setIsCloudSaving} canvas={canvasState} />

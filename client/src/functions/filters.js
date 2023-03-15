@@ -51,7 +51,6 @@ export const blurFilter = (pixels, width, height) => {
   return new ImageData(newData, width, height);
 };
 
-
 export const saturationFilter = (pixels, width, height, saturation) => {
   const newData = new Uint8ClampedArray(pixels.length);
 
