@@ -17,3 +17,12 @@ export const serverStatus = async () => {
     console.log(error);
   }
 };
+
+export const userStats = async (id) => {
+  try {
+    const { data } = await api.userStats(id);
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
+};

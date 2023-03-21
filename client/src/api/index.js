@@ -28,3 +28,4 @@ export const deletePublicImage = (cloudId) => API.delete(`/public/${cloudId}`);
 
 export const dbStatus = () => API.get('/status/db');
 export const serverStatus = () => API.get('/status/server');
+export const userStats = (id) => API.get(`/status/user/${id}`);

@@ -68,6 +68,14 @@ const Sidebar = () => {
   const [hasSavedCrop, setHasSavedCrop] = useState(false);
   const [availableFonts, setAvailableFonts] = useState([]);
 
+  useEffect(() => {
+    if(canvasState){
+      const ctx = canvasState.getContext('2d');
+      const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+      setOriginalData(imageData.data);
+    }
+  }, [canvasState]);
+
   const handleMouseDownText = (e) => {
     const { text, fontSize, fontColor, fontFamily, fontWeight } = textSettings;
     const ctx = canvasState.getContext('2d');
@@ -179,7 +187,6 @@ const Sidebar = () => {
     if (!originalData) {
       const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
       pixels = imageData.data;
-      setOriginalData(pixels);
     }
     const newImageData = blurFilter(
       originalData !== null ? originalData : pixels,
@@ -193,13 +200,10 @@ const Sidebar = () => {
   const handleSaturation = () => {
     let pixels = null;
     const ctx = canvasState.getContext('2d');
-    if (!originalData) {
-      const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
-      pixels = imageData.data;
-      setOriginalData(pixels);
-    }
+    const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+    pixels = imageData.data;
     const newImageData = saturationFilter(
-      originalData != null ? originalData : pixels,
+      pixels,
       dimensions.width,
       dimensions.height,
       1.5
@@ -211,13 +215,10 @@ const Sidebar = () => {
   const handleSharpness = () => {
     let pixels = null;
     const ctx = canvasState.getContext('2d');
-    if (!originalData) {
-      const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
-      pixels = imageData.data;
-      setOriginalData(pixels);
-    }
+    const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+    pixels = imageData.data;
     const newImageData = sharpnessFilter(
-      originalData != null ? originalData : pixels,
+      pixels,
       dimensions.width,
       dimensions.height
     );
@@ -231,7 +232,6 @@ const Sidebar = () => {
     if (!originalData) {
       const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
       pixels = imageData.data;
-      setOriginalData(pixels);
     }
     const gamma = window.prompt('Enter the gamma value:');
     const newImageData = levelsFilter(
@@ -250,7 +250,6 @@ const Sidebar = () => {
     if (!originalData) {
       const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
       pixels = imageData.data;
-      setOriginalData(pixels);
     }
     const newImageData = grayscaleFilter(
       originalData != null ? originalData : pixels,
