@@ -50,7 +50,7 @@ const Account = () => {
         <Divider sx={{ marginTop: 2, marginBottom: 2, bgcolor:'white' }} />
       </Box>
       <Button variant="contained" color="primary" sx={{ marginTop: 2 }} onClick={() => navigate('/menu')}>
-        Logout
+        Back
       </Button>
     </Box>
   )
