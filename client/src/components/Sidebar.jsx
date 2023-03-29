@@ -189,7 +189,7 @@ const Sidebar = () => {
       pixels = imageData.data;
     }
     const newImageData = blurFilter(
-      originalData !== null ? originalData : pixels,
+      pixels,
       dimensions.width,
       dimensions.height
     );
