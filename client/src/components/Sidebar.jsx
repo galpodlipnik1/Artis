@@ -184,10 +184,8 @@ const Sidebar = () => {
   const handleBlur = () => {
     let pixels = null;
     const ctx = canvasState.getContext('2d');
-    if (!originalData) {
-      const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
-      pixels = imageData.data;
-    }
+    const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+    pixels = imageData.data;
     const newImageData = blurFilter(
       pixels,
       dimensions.width,
