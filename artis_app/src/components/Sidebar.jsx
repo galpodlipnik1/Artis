@@ -19,12 +19,13 @@ import { MdLensBlur, MdInvertColors } from 'react-icons/md';
 import { DiFsharp } from 'react-icons/di';
 import { GiAlienFire, GiLevelTwo, GiArrowCursor } from 'react-icons/gi';
 import { CgEditNoise, CgColorPicker } from 'react-icons/cg';
+import { TbViewportWide } from 'react-icons/tb';
 import { AiOutlineUndo } from 'react-icons/ai';
 import { Box } from '@mui/system';
 import { useStateContext } from '../context/ContextProvider';
 import { handleMouseDown } from '../functions/brush';
 import { handleMouseDownErasor } from '../functions/erasor';
-import { crop } from '../functions/crop';
+import { crop, drawRect } from '../functions/crop';
 import { browserFonts } from '../constants/fonts';
 
 import {
@@ -33,7 +34,8 @@ import {
   sharpnessFilter,
   levelsFilter,
   grayscaleFilter,
-  invertFilter
+  invertFilter,
+  chonkFilter
 } from '../functions/filters';
 import { colorPicker, rgbToHex } from '../functions/color';
 
@@ -42,6 +44,7 @@ const Sidebar = () => {
     canvasState,
     setZoom,
     dimensions,
+    setDimensions,
     zoom,
     mousePos,
     setPickedColorState,
@@ -52,11 +55,9 @@ const Sidebar = () => {
   const [selectedTool, setSelectedTool] = useState('select');
   const [brushSettings, setBrushSettings] = useState({ color: '#000000', size: 10 });
   const [erasorSettings, setEraserSettings] = useState({ size: 10 });
-  const [cropSettings, setCropSettings] = useState({ top: 0, left: 0, bottom: 0, right: 0 });
   const [anchorEl, setAnchorEl] = useState(null);
   const BrushOpen = Boolean(anchorEl && anchorEl.id === 'brush');
   const EraserOpen = Boolean(anchorEl && anchorEl.id === 'eraser');
-  const CropOpen = Boolean(anchorEl && anchorEl.id === 'crop');
   const TextOpen = Boolean(anchorEl && anchorEl.id === 'text');
   const [textSettings, setTextSettings] = useState({
     text: '',
@@ -65,17 +66,50 @@ const Sidebar = () => {
     fontFamily: 'Arial',
     fontWeight: 'Normal'
   });
-  const [hasSavedCrop, setHasSavedCrop] = useState(false);
   const [availableFonts, setAvailableFonts] = useState([]);
 
   useEffect(() => {
-    if(canvasState){
+    if (canvasState) {
       const ctx = canvasState.getContext('2d');
       const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
-      setOriginalData(imageData.data);
+      setOriginalData(imageData);
+      setCurrentImageData(imageData);
     }
   }, [canvasState]);
 
+  const handleCrop = () => {
+    let cropPos = [];
+    let isDrawing = false;
+
+    canvasState.addEventListener('mousedown', (e) => {
+      const x = e.clientX - canvasState.offsetLeft;
+      const y = e.clientY - canvasState.offsetTop;
+      const ctx = canvasState.getContext('2d');
+      ctx.clearRect(0, 0, canvasState.width, canvasState.height);
+      ctx.putImageData(currentImageData, 0, 0);
+      cropPos.push({ x, y });
+      isDrawing = true;
+
+      canvasState.addEventListener('mousemove', (e) => {
+        if(!isDrawing) return;
+        drawRect(e, cropPos, canvasState, isDrawing, currentImageData);
+      });
+
+      canvasState.addEventListener('mouseup', (e) => {
+        if(!isDrawing) return;
+        isDrawing = false;
+        const x = e.clientX - canvasState.offsetLeft;
+        const y = e.clientY - canvasState.offsetTop;
+        cropPos.push({ x, y });
+        setCurrentImageData(canvasState.getContext('2d').getImageData(0, 0, canvasState.width, canvasState.height));
+        crop(cropPos, canvasState, currentImageData, setDimensions, isDrawing);
+        cropPos = [];
+        setSelectedTool('select');
+      });
+    });
+
+  };
+  
   const handleMouseDownText = (e) => {
     const { text, fontSize, fontColor, fontFamily, fontWeight } = textSettings;
     const ctx = canvasState.getContext('2d');
@@ -102,8 +136,6 @@ const Sidebar = () => {
     } else if (selectedTool === 'eraser') {
       canvasState.addEventListener('mousedown', handleMouseDownEraser);
     } else if (selectedTool === 'crop') {
-      if (hasSavedCrop) crop(canvasState, cropSettings);
-      setHasSavedCrop(false);
     } else if (selectedTool === 'text') {
       canvasState.addEventListener('mousedown', handleMouseDownText);
     } else if (selectedTool === 'color') {
@@ -121,7 +153,7 @@ const Sidebar = () => {
         canvasState.removeEventListener('mousedown', handleMouseDownColor);
       }
     };
-  }, [selectedTool, brushSettings, erasorSettings, hasSavedCrop, cropSettings, textSettings]);
+  }, [selectedTool, brushSettings, erasorSettings, textSettings]);
 
   useEffect(() => {
     const fonts = grouped(browserFonts);
@@ -149,10 +181,6 @@ const Sidebar = () => {
     setEraserSettings({ ...erasorSettings, size: e.target.value });
   };
 
-  const handleCropSettings = (e) => {
-    setCropSettings({ ...cropSettings, [e.target.name]: e.target.value });
-  };
-
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -176,7 +204,7 @@ const Sidebar = () => {
   const handleRevert = () => {
     const ctx = canvasState.getContext('2d');
     if (!originalData) return;
-    const originalImage = new ImageData(originalData, dimensions.width, dimensions.height);
+    const originalImage = new ImageData(originalData.data, dimensions.width, dimensions.height);
     ctx.putImageData(originalImage, 0, 0);
     setCurrentImageData(originalImage);
   };
@@ -184,15 +212,9 @@ const Sidebar = () => {
   const handleBlur = () => {
     let pixels = null;
     const ctx = canvasState.getContext('2d');
-    if (!originalData) {
-      const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
-      pixels = imageData.data;
-    }
-    const newImageData = blurFilter(
-      originalData !== null ? originalData : pixels,
-      dimensions.width,
-      dimensions.height
-    );
+    const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+    pixels = imageData.data;
+    const newImageData = blurFilter(pixels, dimensions.width, dimensions.height);
     setCurrentImageData(newImageData);
     ctx.putImageData(newImageData, 0, 0);
   };
@@ -202,12 +224,7 @@ const Sidebar = () => {
     const ctx = canvasState.getContext('2d');
     const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
     pixels = imageData.data;
-    const newImageData = saturationFilter(
-      pixels,
-      dimensions.width,
-      dimensions.height,
-      1.5
-    );
+    const newImageData = saturationFilter(pixels, dimensions.width, dimensions.height, 1.5);
     setCurrentImageData(newImageData);
     ctx.putImageData(newImageData, 0, 0);
   };
@@ -217,11 +234,7 @@ const Sidebar = () => {
     const ctx = canvasState.getContext('2d');
     const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
     pixels = imageData.data;
-    const newImageData = sharpnessFilter(
-      pixels,
-      dimensions.width,
-      dimensions.height
-    );
+    const newImageData = sharpnessFilter(pixels, dimensions.width, dimensions.height);
     setCurrentImageData(newImageData);
     ctx.putImageData(newImageData, 0, 0);
   };
@@ -229,13 +242,11 @@ const Sidebar = () => {
   const handleLevels = () => {
     let pixels = null;
     const ctx = canvasState.getContext('2d');
-    if (!originalData) {
-      const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
-      pixels = imageData.data;
-    }
+    const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+    pixels = imageData.data;
     const gamma = window.prompt('Enter the gamma value:');
     const newImageData = levelsFilter(
-      originalData != null ? originalData : pixels,
+      pixels,
       dimensions.width,
       dimensions.height,
       gamma
@@ -247,12 +258,10 @@ const Sidebar = () => {
   const handleGrayscale = () => {
     let pixels = null;
     const ctx = canvasState.getContext('2d');
-    if (!originalData) {
-      const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
-      pixels = imageData.data;
-    }
+    const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+    pixels = imageData.data;
     const newImageData = grayscaleFilter(
-      originalData != null ? originalData : pixels,
+      pixels,
       dimensions.width,
       dimensions.height
     );
@@ -263,13 +272,25 @@ const Sidebar = () => {
   const handleInvert = () => {
     let pixels = null;
     const ctx = canvasState.getContext('2d');
-    if (!originalData) {
-      const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
-      pixels = imageData.data;
-      setOriginalData(pixels);
-    }
+    const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+    pixels = imageData.data;
     const newImageData = invertFilter(
-      originalData != null ? originalData : pixels,
+      pixels,
+      dimensions.width,
+      dimensions.height
+    );
+    setCurrentImageData(newImageData);
+    ctx.putImageData(newImageData, 0, 0);
+  };
+
+  const handleChonk = () => {
+    //make the image chonkie
+    let pixels = null;
+    const ctx = canvasState.getContext('2d');
+    const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+    pixels = imageData.data;
+    const newImageData = chonkFilter(
+      pixels,
       dimensions.width,
       dimensions.height
     );
@@ -515,7 +536,6 @@ const Sidebar = () => {
                 size="small"
                 sx={{ backgroundColor: '#000059', color: '#fff', mr: '1rem' }}
                 onClick={(e) => {
-                  setHasSavedCrop(true);
                   handleClose(e);
                 }}
               >
@@ -526,12 +546,12 @@ const Sidebar = () => {
           <Tooltip title="Crop" placement="right" onClick={() => setSelectedTool('crop')}>
             <IconButton
               id="crop"
-              aria-controls={CropOpen ? 'crop-menu' : undefined}
-              aria-haspopup="true"
-              aria-expanded={CropOpen ? true : undefined}
-              onClick={handleClick}
               variant="contained"
               size="small"
+              onClick={() => {
+                setSelectedTool('crop');
+                handleCrop();
+              }}
               sx={
                 selectedTool === 'crop'
                   ? { backgroundColor: '#000059', ...buttonStyle }
@@ -541,114 +561,6 @@ const Sidebar = () => {
               {<BiCrop />}{' '}
             </IconButton>
           </Tooltip>
-          <Menu
-            id="crop-menu"
-            open={CropOpen}
-            anchorEl={anchorEl}
-            onClose={handleClose}
-            onClick={() => setSelectedTool('crop')}
-            MenuListProps={{
-              'area-labelledby': 'crop'
-            }}
-          >
-            <MenuItem
-              sx={{
-                width: '300px',
-                p: '1rem',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
-              <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr: '1rem' }}>
-                Top:
-              </Typography>
-              <input
-                type="number"
-                name="top"
-                value={cropSettings.top}
-                onChange={(e) => handleCropSettings(e)}
-              />
-            </MenuItem>
-            <MenuItem
-              sx={{
-                width: '300px',
-                p: '1rem',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
-              <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr: '1rem' }}>
-                Left:
-              </Typography>
-              <input
-                type="number"
-                name="left"
-                value={cropSettings.left}
-                onChange={(e) => handleCropSettings(e)}
-              />
-            </MenuItem>
-            <MenuItem
-              sx={{
-                width: '300px',
-                p: '1rem',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
-              <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr: '1rem' }}>
-                Right:
-              </Typography>
-              <input
-                type="number"
-                name="right"
-                value={cropSettings.right}
-                onChange={(e) => handleCropSettings(e)}
-              />
-            </MenuItem>
-            <MenuItem
-              sx={{
-                width: '300px',
-                p: '1rem',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
-              <Typography variant="body2" id="input-slider" gutterBottom sx={{ mr: '1rem' }}>
-                Bottom:
-              </Typography>
-              <input
-                type="number"
-                name="bottom"
-                value={cropSettings.bottom}
-                onChange={(e) => handleCropSettings(e)}
-              />
-            </MenuItem>
-            <MenuItem
-              sx={{
-                width: '300px',
-                p: '1rem',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
-              <Button
-                variant="contained"
-                size="small"
-                sx={{ backgroundColor: '#000059', color: '#fff', mr: '1rem' }}
-                onClick={(e) => {
-                  setHasSavedCrop(true);
-                  handleClose(e);
-                }}
-              >
-                Save
-              </Button>
-            </MenuItem>
-          </Menu>
           <Tooltip title="Text" placement="right" onClick={() => setSelectedTool('text')}>
             <IconButton
               id="text"
@@ -846,6 +758,15 @@ const Sidebar = () => {
               sx={{ backgroundColor: '#838383', ...buttonStyle }}
             >
               {<MdLensBlur />}{' '}
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Chonkinate" placement="right" onClick={handleChonk}>
+            <IconButton
+              variant="contained"
+              size="small"
+              sx={{ backgroundColor: '#838383', ...buttonStyle }}
+            >
+              {<TbViewportWide />}{' '}
             </IconButton>
           </Tooltip>
           <Tooltip title="Sharpen" placement="right" onClick={handleSharpness}>
