@@ -55,8 +55,7 @@ const Auth = () => {
     if (!res.user) {
       alert('Something went wrong.');
     } else {
-      if (isSignUp) 
-          runFireworks();
+      if (isSignUp) runFireworks();
       setUser(res);
       localStorage.setItem('profile', JSON.stringify(res));
       navigate('/');

@@ -1,51 +1,46 @@
-export const crop = (canvasState, cropSettings) => {
-  const requiredSettings = ['top', 'left', 'bottom', 'right'];
-  if (!requiredSettings.every((setting) => setting in cropSettings)) {
-    throw new Error('Missing required crop setting');
-  }
-
-  const canvas = canvasState;
-  const ctx = canvas.getContext('2d');
-  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const pixels = new Uint8ClampedArray(imgData.data);
-  const width = canvas.width;
-  const height = canvas.height;
-  const cropTop = parseInt(cropSettings.top);
-  const cropLeft = parseInt(cropSettings.left);
-  const cropBottom = parseInt(cropSettings.bottom);
-  const cropRight = parseInt(cropSettings.right);
-  const newCanvas = document.createElement('canvas');
-  newCanvas.width = width - cropLeft - cropRight;
-  newCanvas.height = height - cropTop - cropBottom;
-
-  const newCtx = newCanvas.getContext('2d');
-  const newImgData = newCtx.createImageData(newCanvas.width, newCanvas.height);
-  const newPixels = newImgData.data;
-  const newWidth = newCanvas.width;
-  const newHeight = newCanvas.height;
-  const len = pixels.length;
-  let i = 0;
-  let x = 0;
-  let y = 0;
-  let newX = 0;
-  let newY = 0;
-  let newPos = 0;
-
-  for (i = 0; i < len; i += 4) {
-    x = (i / 4) % width;
-    y = Math.floor(i / 4 / width);
-    if (x >= cropLeft && x < width - cropRight && y >= cropTop && y < height - cropBottom) {
-      newX = x - cropLeft;
-      newY = y - cropTop;
-      newPos = (newY * newWidth + newX) * 4;
-      newPixels[newPos] = pixels[i];
-      newPixels[newPos + 1] = pixels[i + 1];
-      newPixels[newPos + 2] = pixels[i + 2];
-      newPixels[newPos + 3] = pixels[i + 3];
+export const crop = (cropPos, canvasState, currentImageData, setDimensions ) => {
+  const ctx = canvasState.getContext("2d");
+  setTimeout(() => {
+    const confirm = window.confirm("Do you want to crop this image?");
+    if (confirm && cropPos.length === 2) {
+      ctx.clearRect(0, 0, canvasState.width, canvasState.height);
+      ctx.putImageData(currentImageData, 0, 0);
+      makeCrop(cropPos, canvasState, setDimensions);
+    } else {
+      ctx.clearRect(0, 0, canvasState.width, canvasState.height);
+      ctx.beginPath();
+      ctx.putImageData(currentImageData, 0, 0);
     }
-  }
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  canvas.width = newCanvas.width;
-  canvas.height = newCanvas.height;
-  ctx.putImageData(newImgData, 0, 0);
+  }, 200);
+}
+
+export const drawRect = (e, cropPos, canvasState, isDrawing, currentImageData) => {
+  if (!isDrawing) return;
+  const ctx = canvasState.getContext("2d");
+  const currentX = e.clientX - canvasState.offsetLeft;
+  const currentY = e.clientY - canvasState.offsetTop;
+  const width = currentX - cropPos[0].x;
+  const height = currentY - cropPos[0].y;
+
+  ctx.clearRect(0, 0, canvasState.width, canvasState.height);
+  ctx.putImageData(currentImageData, 0, 0);
+  ctx.strokeRect(cropPos[0].x, cropPos[0].y, width, height);
+  ctx.strokeStyle = "blue";
+  ctx.setLineDash([5, 3]);
+  ctx.lineWidth = 2;
+  ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+  ctx.fillRect(cropPos[0].x, cropPos[0].y, width, height);
+};
+
+const makeCrop = (cropPos, canvasState, setDimensions ) => {
+  const ctx = canvasState.getContext("2d");
+
+  const cropWidth = cropPos[1].x - cropPos[0].x;
+  const cropHeight = cropPos[1].y - cropPos[0].y;
+  setDimensions({ width: cropWidth, height: cropHeight});
+
+  const croppedImageData = ctx.getImageData(cropPos[0].x, cropPos[0].y, cropWidth, cropHeight);
+  canvasState.width = cropWidth;
+  canvasState.height = cropHeight;
+  ctx.putImageData(croppedImageData, 0, 0);
 };
