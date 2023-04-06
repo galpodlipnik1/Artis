@@ -173,3 +173,43 @@ export const invertFilter = (pixels, width, height) => {
 
   return new ImageData(newData, width, height);
 };
+
+export const chonkFilter = (pixels, width, height) => {
+  //make the image chonkier by making the pixels bigger but do not change the height of the image
+  const newData = new Uint8ClampedArray(pixels.length * 4);
+
+  for (let i = 0; i < pixels.length; i += 4) {
+    const r = pixels[i];
+    const g = pixels[i + 1];
+    const b = pixels[i + 2];
+    const a = pixels[i + 3];
+
+    const row = Math.floor(i / 4 / width);
+    const col = Math.floor(i / 4) % width;
+
+    const index = (row * width + col) * 4;
+
+    newData[index] = r;
+    newData[index + 1] = g;
+    newData[index + 2] = b;
+    newData[index + 3] = a;
+
+    newData[index + 4] = r;
+    newData[index + 5] = g;
+    newData[index + 6] = b;
+    newData[index + 7] = a;
+
+    newData[index + width * 4] = r;
+    newData[index + width * 4 + 1] = g;
+    newData[index + width * 4 + 2] = b;
+    newData[index + width * 4 + 3] = a;
+
+    newData[index + width * 4 + 4] = r;
+    newData[index + width * 4 + 5] = g;
+    newData[index + width * 4 + 6] = b;
+    newData[index + width * 4 + 7] = a;
+  }
+
+  return new ImageData(newData, width * 2, height * 2);
+};
+

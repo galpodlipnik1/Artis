@@ -19,6 +19,7 @@ import { MdLensBlur, MdInvertColors } from 'react-icons/md';
 import { DiFsharp } from 'react-icons/di';
 import { GiAlienFire, GiLevelTwo, GiArrowCursor } from 'react-icons/gi';
 import { CgEditNoise, CgColorPicker } from 'react-icons/cg';
+import { TbViewportWide } from 'react-icons/tb';
 import { AiOutlineUndo } from 'react-icons/ai';
 import { Box } from '@mui/system';
 import { useStateContext } from '../context/ContextProvider';
@@ -33,7 +34,8 @@ import {
   sharpnessFilter,
   levelsFilter,
   grayscaleFilter,
-  invertFilter
+  invertFilter,
+  chonkFilter
 } from '../functions/filters';
 import { colorPicker, rgbToHex } from '../functions/color';
 
@@ -202,7 +204,7 @@ const Sidebar = () => {
   const handleRevert = () => {
     const ctx = canvasState.getContext('2d');
     if (!originalData) return;
-    const originalImage = new ImageData(originalData, dimensions.width, dimensions.height);
+    const originalImage = new ImageData(originalData.data, dimensions.width, dimensions.height);
     ctx.putImageData(originalImage, 0, 0);
     setCurrentImageData(originalImage);
   };
@@ -240,13 +242,11 @@ const Sidebar = () => {
   const handleLevels = () => {
     let pixels = null;
     const ctx = canvasState.getContext('2d');
-    if (!originalData) {
-      const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
-      pixels = imageData.data;
-    }
+    const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+    pixels = imageData.data;
     const gamma = window.prompt('Enter the gamma value:');
     const newImageData = levelsFilter(
-      originalData != null ? originalData : pixels,
+      pixels,
       dimensions.width,
       dimensions.height,
       gamma
@@ -258,12 +258,10 @@ const Sidebar = () => {
   const handleGrayscale = () => {
     let pixels = null;
     const ctx = canvasState.getContext('2d');
-    if (!originalData) {
-      const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
-      pixels = imageData.data;
-    }
+    const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+    pixels = imageData.data;
     const newImageData = grayscaleFilter(
-      originalData != null ? originalData : pixels,
+      pixels,
       dimensions.width,
       dimensions.height
     );
@@ -274,13 +272,25 @@ const Sidebar = () => {
   const handleInvert = () => {
     let pixels = null;
     const ctx = canvasState.getContext('2d');
-    if (!originalData) {
-      const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
-      pixels = imageData.data;
-      setOriginalData(pixels);
-    }
+    const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+    pixels = imageData.data;
     const newImageData = invertFilter(
-      originalData != null ? originalData : pixels,
+      pixels,
+      dimensions.width,
+      dimensions.height
+    );
+    setCurrentImageData(newImageData);
+    ctx.putImageData(newImageData, 0, 0);
+  };
+
+  const handleChonk = () => {
+    //make the image chonkie
+    let pixels = null;
+    const ctx = canvasState.getContext('2d');
+    const imageData = ctx.getImageData(0, 0, dimensions.width, dimensions.height);
+    pixels = imageData.data;
+    const newImageData = chonkFilter(
+      pixels,
       dimensions.width,
       dimensions.height
     );
@@ -748,6 +758,15 @@ const Sidebar = () => {
               sx={{ backgroundColor: '#838383', ...buttonStyle }}
             >
               {<MdLensBlur />}{' '}
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Chonkinate" placement="right" onClick={handleChonk}>
+            <IconButton
+              variant="contained"
+              size="small"
+              sx={{ backgroundColor: '#838383', ...buttonStyle }}
+            >
+              {<TbViewportWide />}{' '}
             </IconButton>
           </Tooltip>
           <Tooltip title="Sharpen" placement="right" onClick={handleSharpness}>
