@@ -42,6 +42,7 @@ const Sidebar = () => {
     canvasState,
     setZoom,
     dimensions,
+    setDimensions,
     zoom,
     mousePos,
     setPickedColorState,
@@ -81,29 +82,27 @@ const Sidebar = () => {
     canvasState.addEventListener('mousedown', (e) => {
       const x = e.clientX - canvasState.offsetLeft;
       const y = e.clientY - canvasState.offsetTop;
+      const ctx = canvasState.getContext('2d');
+      ctx.clearRect(0, 0, canvasState.width, canvasState.height);
+      ctx.putImageData(currentImageData, 0, 0);
       cropPos.push({ x, y });
       isDrawing = true;
 
       canvasState.addEventListener('mousemove', (e) => {
-        drawRect(e, cropPos, canvasState, isDrawing);
+        if(!isDrawing) return;
+        drawRect(e, cropPos, canvasState, isDrawing, currentImageData);
       });
 
       canvasState.addEventListener('mouseup', (e) => {
+        if(!isDrawing) return;
+        isDrawing = false;
         const x = e.clientX - canvasState.offsetLeft;
         const y = e.clientY - canvasState.offsetTop;
         cropPos.push({ x, y });
-        crop(cropPos, canvasState);
-        isDrawing = false;
-
-        canvasState.removeEventListener('mousemove', (e) => {
-          drawRect(e, cropPos, canvasState);
-        });
-
-        canvasState.removeEventListener('mousedown', (e) => {
-          const x = e.clientX - canvasState.offsetLeft;
-          const y = e.clientY - canvasState.offsetTop;
-          cropPos.push({ x, y });
-        });
+        setCurrentImageData(canvasState.getContext('2d').getImageData(0, 0, canvasState.width, canvasState.height));
+        crop(cropPos, canvasState, currentImageData, setDimensions, isDrawing);
+        cropPos = [];
+        setSelectedTool('select');
       });
     });
 
