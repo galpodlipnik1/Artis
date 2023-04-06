@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API = axios.create({ baseURL: 'https://artisserv.galpodlipnik.com' }); //https://artisserv.galpodlipnik.com
+const API = axios.create({ baseURL: 'http://localhost:2004' }); //https://artisserv.galpodlipnik.com
 
 API.interceptors.request.use((req) => {
   if (localStorage.getItem('profile')) {
